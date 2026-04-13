@@ -46,6 +46,14 @@ body {
     font-size: 15px;
 }
 
+.main-content {
+    margin-top: 80px;
+    padding: 20px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .top-bar {
     background: #fff;
     border-radius: 12px;
@@ -143,7 +151,8 @@ body {
 
 <body>
 
-<div class="container mt-4" style="max-width: 1200px;">
+<?php include '../includes/header.php'; ?>
+<div class="main-content">
 
     <div class="top-bar">
         <h4><i class="bi bi-lightning-charge-fill me-2 text-success"></i>Energy Listings</h4>
@@ -252,6 +261,5 @@ body {
     </div>
 
 </div>
-
 </body>
 </html>

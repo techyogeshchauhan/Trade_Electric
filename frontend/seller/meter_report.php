@@ -13,18 +13,13 @@ $current_hour = (int)date('H');
 $current_minute = (int)date('i');
 $current_date = date('Y-m-d');
 
-// Solar generation multiplier based on time
-function getSolarMultiplier($hour) {
-    if ($hour < 9 || $hour >= 17) return 0; // No solar outside 9 AM - 5 PM
-    if ($hour >= 9 && $hour < 10) return 0.4;
-    if ($hour >= 10 && $hour < 11) return 0.6;
-    if ($hour >= 11 && $hour < 12) return 0.75;
-    if ($hour >= 12 && $hour < 14) return 0.9;
-    if ($hour >= 14 && $hour < 15) return 1.0; // Peak hour 2-3 PM
-    if ($hour >= 15 && $hour < 16) return 0.9;
-    if ($hour >= 16 && $hour < 17) return 0.7;
-    return 0;
-}
+// Auto-populate meter data if not exists for today
+$check_data = $conn->query("SELECT COUNT(*) as count FROM prosumer_meter_data 
+                            WHERE user_id = $user_id AND date = '$current_date'");
+$data_count = $check_data->fetch_assoc()['count'];
+
+// If no data exists for today, we'll show a message to refresh
+// (Auto-population happens via the refresh button or API call)
 
 // Get token statistics
 $token_stats = $conn->query("
@@ -39,10 +34,27 @@ $tokens_minted = $token_stats['minted'] ?? 0;
 $tokens_sold = $token_stats['sold'] ?? 0;
 $tokens_available = max(0, $tokens_minted - $tokens_sold);
 
-// Get today's energy data
-$energy_data = [];
-$base_generation = 25; // Base kWh capacity
+// Fetch today's energy data from database
+$energy_query = $conn->query("
+    SELECT time_block, generated_kwh, self_consumed_kwh, sold_kwh 
+    FROM prosumer_meter_data 
+    WHERE user_id = $user_id AND date = '$current_date'
+    ORDER BY time_block ASC
+");
 
+$energy_data = [];
+$db_data = [];
+
+// Store database data in associative array
+while ($row = $energy_query->fetch_assoc()) {
+    $db_data[$row['time_block']] = [
+        'generated' => (float)$row['generated_kwh'],
+        'self_consumed' => (float)$row['self_consumed_kwh'],
+        'available' => (float)$row['generated_kwh'] - (float)$row['self_consumed_kwh']
+    ];
+}
+
+// Generate all 96 blocks (24 hours * 4 blocks per hour)
 for ($h = 0; $h < 24; $h++) {
     for ($m = 0; $m < 60; $m += 15) {
         $start = sprintf("%02d:%02d", $h, $m);
@@ -55,27 +67,21 @@ for ($h = 0; $h < 24; $h++) {
         $end = sprintf("%02d:%02d", $end_h, $end_m);
         $block = "$start-$end";
         
-        // Only show data for past and current blocks
-        $is_future = ($h > $current_hour) || ($h == $current_hour && $m > $current_minute);
-        
-        if ($is_future) {
+        // Check if data exists in database
+        if (isset($db_data[$block])) {
+            $energy_data[] = [
+                'block' => $block,
+                'generated' => $db_data[$block]['generated'],
+                'self_consumed' => $db_data[$block]['self_consumed'],
+                'available' => $db_data[$block]['available']
+            ];
+        } else {
+            // No data for this block (future or no generation)
             $energy_data[] = [
                 'block' => $block,
                 'generated' => 0,
                 'self_consumed' => 0,
                 'available' => 0
-            ];
-        } else {
-            $multiplier = getSolarMultiplier($h);
-            $generated = ($base_generation / 4) * $multiplier; // Divide by 4 for 15-min blocks
-            $self_consumed = $generated * 0.38; // 38% self consumption
-            $available = $generated - $self_consumed;
-            
-            $energy_data[] = [
-                'block' => $block,
-                'generated' => round($generated, 2),
-                'self_consumed' => round($self_consumed, 2),
-                'available' => round($available, 2)
             ];
         }
     }
@@ -97,11 +103,16 @@ $total_available = array_sum(array_column($energy_data, 'available'));
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     
     <style>
-        body { background: #f8fafc; }
+        body { 
+            background: #f8fafc;
+            position: relative;
+        }
         .main-content {
             margin-top: 80px;
             margin-left: 260px;
             padding: 25px;
+            position: relative;
+            z-index: 1;
         }
         .stat-card {
             border-radius: 12px;
@@ -109,16 +120,23 @@ $total_available = array_sum(array_column($energy_data, 'available'));
             color: white;
             text-align: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
         }
         .card {
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            position: relative;
+            z-index: 1;
         }
         .table th {
             background: #0ea5e9;
             color: white;
             text-align: center;
             font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         .table td {
             text-align: center;
@@ -147,10 +165,15 @@ $total_available = array_sum(array_column($energy_data, 'available'));
 <?php include '../includes/header.php'; ?>
 
 <div class="main-content">
-    <h2 class="mb-4">
-        <i class="bi bi-speedometer2 me-2"></i>Energy Monitor
-        <small class="text-muted">(<?= date('d M Y') ?>)</small>
-    </h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="bi bi-speedometer2 me-2"></i>Energy Monitor
+            <small class="text-muted">(<?= date('d M Y') ?>)</small>
+        </h2>
+        <button id="refreshMeterData" class="btn btn-primary">
+            <i class="bi bi-arrow-clockwise me-2"></i>Refresh Meter Data
+        </button>
+    </div>
 
     <!-- Summary Cards -->
     <div class="row g-3 mb-4">
@@ -271,6 +294,29 @@ $total_available = array_sum(array_column($energy_data, 'available'));
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Refresh meter data button
+$("#refreshMeterData").click(function(){
+    const btn = $(this);
+    btn.prop('disabled', true).html('<i class="spinner-border spinner-border-sm me-2"></i>Refreshing...');
+    
+    $.get("../../api/populate_meter_data.php", function(response){
+        let data = typeof response === "string" ? JSON.parse(response) : response;
+        
+        if(data.status === "success"){
+            alert("✅ " + data.message + "\n\nInserted: " + data.inserted + "\nUpdated: " + data.updated + "\nTotal: " + data.total);
+            location.reload();
+        } else {
+            alert("❌ Failed to refresh meter data");
+        }
+    }).fail(function(){
+        alert("❌ Server error occurred");
+    }).always(function(){
+        btn.prop('disabled', false).html('<i class="bi bi-arrow-clockwise me-2"></i>Refresh Meter Data');
+    });
+});
+</script>
 
 </body>
 </html>

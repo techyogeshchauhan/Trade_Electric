@@ -53,6 +53,14 @@ body {
     font-size: 15px;
 }
 
+.main-content {
+    margin-top: 80px;
+    padding: 20px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .top-bar {
     background: #fff;
     border-radius: 12px;
@@ -140,9 +148,8 @@ body {
 
 <?php include '../includes/header.php'; ?>
 <div class="main-content">
-<div style="margin-top: 80px; padding: 20px; max-width: 1400px; margin-left: auto; margin-right: auto;">
 
-    <div class="top-bar">
+<div class="top-bar">
         <h4><i class="bi bi-arrow-left-right me-2 text-info"></i>All Trades</h4>
         <div class="top-stats">
             <div>
@@ -267,7 +274,6 @@ body {
         </div>
     </div>
 
-</div>
 </div>
 </body>
 </html>

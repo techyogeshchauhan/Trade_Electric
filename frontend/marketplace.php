@@ -21,101 +21,288 @@ $role = $_SESSION['role'];
     
 
     <style>
-        :root {
-            --primary: #3b82f6;
-        }
-
-        .main-content {
-            margin-top: 90px;
-            margin-left: 260px;
-            padding: 25px 30px;
-            min-height: calc(100vh - 90px);
+        body {
             background: #f8fafc;
         }
-
+        
+        .main-content { 
+            padding: 15px; 
+            margin-top: 80px;
+            margin-left: 260px;
+            max-height: calc(100vh - 95px);
+            overflow-y: auto;
+        }
+        
         .market-card {
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(19, 138, 145, 0.08);
-            border: none;
-            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
         }
-
+        
+        .market-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
         .card-header {
-            background: white !important;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 16px !important;
+            border-radius: 12px 12px 0 0 !important;
         }
-
+        
+        .card-header h5 {
+            font-size: 18px !important;
+            margin: 0 !important;
+            font-weight: 700;
+        }
+        
+        .card-header small {
+            font-size: 13px !important;
+        }
+        
+        .badge-live {
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .table {
+            margin: 0 !important;
+            font-size: 13px;
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        
         .table th {
-            background: #1e2937;
+            background: #1e293b;
             color: white;
-            font-weight: 500;
             text-align: center;
-            padding: 14px 10px;
-            font-size: 14px;
+            padding: 10px 8px !important;
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: 600;
+            border: 1px solid #374151;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-
+        
         .table td {
-            padding: 14px 10px;
-            vertical-align: middle;
             text-align: center;
-        }
-
-        .live-badge {
-            background: #10b981;
-            color: white;
-            padding: 5px 14px;
-            border-radius: 50px;
+            vertical-align: middle;
+            padding: 8px 6px !important;
             font-size: 13px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            border: 1px solid #e5e7eb;
         }
-
-        .price {
-            font-weight: 600;
-            color: #1e40af;
+        
+        .table tbody tr:hover {
+            background-color: #f3f4f6;
         }
-
-        .remaining {
-            background: #e0f2fe;
-            color: #0369a1;
-            padding: 4px 10px;
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            white-space: nowrap;
             border-radius: 6px;
-            font-weight: 500;
         }
-
-        .btn-place-bid {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
+        
+        .table-responsive {
+            max-height: 280px;
+            overflow-y: auto;
+            overflow-x: auto;
+            border-radius: 0 0 12px 12px;
         }
-
-        .btn-match-now {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
+        
+        .table-responsive::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
         }
-
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-content {
+                margin-left: 260px;
+            }
+            
+            .table {
+                font-size: 12px;
+            }
+            
+            .table th {
+                font-size: 11px;
+                padding: 8px 6px !important;
+            }
+            
+            .table td {
+                font-size: 12px;
+                padding: 6px 4px !important;
+            }
+        }
         
         @media (max-width: 992px) {
-            .main-content {
+            .main-content { 
                 margin-left: 0;
-                margin-top: 90px;
-                padding: 15px;
+                padding: 12px;
+                margin-top: 80px;
+            }
+            
+            .card-header h5 {
+                font-size: 16px !important;
+            }
+            
+            .table {
+                font-size: 11px;
+            }
+            
+            .table th {
+                font-size: 10px;
+                padding: 6px 4px !important;
+            }
+            
+            .table td {
+                font-size: 11px;
+                padding: 5px 3px !important;
+            }
+            
+            .table-responsive {
+                max-height: 220px;
+            }
+            
+            .btn-sm {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px;
+                margin-top: 75px;
+            }
+            
+            h2 {
+                font-size: 20px !important;
+            }
+            
+            .card-header h5 {
+                font-size: 14px !important;
+            }
+            
+            .card-header small {
+                font-size: 11px !important;
+            }
+            
+            .table {
+                font-size: 10px;
+            }
+            
+            .table th {
+                font-size: 9px;
+                padding: 5px 3px !important;
+            }
+            
+            .table td {
+                font-size: 10px;
+                padding: 4px 2px !important;
+            }
+            
+            .table-responsive {
+                max-height: 200px;
+            }
+            
+            .btn-sm {
+                padding: 3px 6px;
+                font-size: 10px;
+            }
+            
+            .badge-live {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+            
+            .market-card {
+                margin-bottom: 12px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 8px;
+                margin-top: 70px;
+            }
+            
+            h2 {
+                font-size: 18px !important;
+            }
+            
+            .card-header {
+                padding: 10px 12px !important;
+            }
+            
+            .card-header h5 {
+                font-size: 13px !important;
+            }
+            
+            .card-header small {
+                font-size: 10px !important;
+                display: block;
+                margin-top: 2px;
+            }
+            
+            .table {
+                font-size: 9px;
+            }
+            
+            .table th {
+                font-size: 8px;
+                padding: 4px 2px !important;
+            }
+            
+            .table td {
+                font-size: 9px;
+                padding: 3px 2px !important;
+            }
+            
+            .table-responsive {
+                max-height: 180px;
+            }
+            
+            .btn-sm {
+                padding: 2px 5px;
+                font-size: 9px;
+            }
+            
+            .badge-live {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 8px;
+            }
+            
+            .market-card {
+                margin-bottom: 10px;
             }
         }
     </style>

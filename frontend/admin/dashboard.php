@@ -59,7 +59,10 @@ function safeFetch($query, $key = 'total') {
 html, body { overflow-x: hidden; }
 
 body {
-    background: #f8fafc;
+    background: #f0f2f5;
+    font-family: 'Segoe UI', sans-serif;
+    color: #1f2937;
+    font-size: 15px;
     margin: 0;
 }
 
@@ -195,8 +198,8 @@ body {
 
 <div class="main-content">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>👨‍💼 Admin Dashboard</h2>
+<div class="top-bar" style="background: #fff; border-radius: 12px; padding: 20px 28px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center;">
+    <h4 style="font-weight: 700; margin: 0; font-size: 20px;"><i class="bi bi-speedometer2 me-2 text-primary"></i>Admin Dashboard</h4>
     <small class="text-muted"><?= date('d-m-Y h:i A') ?></small>
 </div>
 
@@ -329,7 +332,7 @@ body {
                         </a>
                     </div>
                     <div class="col-6">
-                        <a href="marketplace.php" class="btn btn-outline-warning action-btn w-100 d-block text-center">
+                        <a href="../marketplace.php" class="btn btn-outline-warning action-btn w-100 d-block text-center">
                             <i class="bi bi-shop me-1"></i> Marketplace
                         </a>
                     </div>
@@ -339,7 +342,7 @@ body {
                         </a>
                     </div>
                     <div class="col-6">
-                        <a href="settlement.php" class="btn btn-outline-danger action-btn w-100 d-block text-center">
+                        <a href="../dashboard/settlement.php" class="btn btn-outline-danger action-btn w-100 d-block text-center">
                             <i class="bi bi-gavel me-1"></i> Settlement
                         </a>
                     </div>

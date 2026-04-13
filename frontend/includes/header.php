@@ -53,6 +53,7 @@ body {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    gap: 10px;
 }
 
 /* CENTER TITLE */
@@ -63,16 +64,19 @@ body {
     font-size: 30px;
     font-weight: 600;
     color: #ffffff;
+    white-space: nowrap;
 }
 
 /* LOGOS */
 .logo-left {
     height: 60px;
+    flex-shrink: 0;
 }
 
 .logo-right {
     height: 40px;
     display: block;
+    flex-shrink: 0;
 }
 
 /* RIGHT SECTION */
@@ -80,6 +84,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 /* USER BUTTON */
@@ -89,6 +94,15 @@ body {
     padding: 6px 14px;
     border: none;
     font-weight: 500;
+    font-size: 14px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.user-btn i {
+    font-size: 18px;
 }
 
 /* ================= SIDEBAR ================= */
@@ -102,6 +116,7 @@ body {
     border-right: 2px solid #1e40af;
     overflow-y: auto;
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 999;
 }
 
 /* NAV LINKS */
@@ -155,12 +170,129 @@ body {
 @media (max-width: 992px) {
     .sidebar {
         transform: translateX(-100%);
+        transition: transform 0.3s ease;
     }
     .sidebar.show {
         transform: translateX(0);
     }
     .main-content {
         margin-left: 0;
+    }
+    
+    .center-section {
+        font-size: 20px;
+    }
+    
+    .logo-left {
+        height: 50px;
+    }
+    
+    .logo-right {
+        height: 35px;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-header {
+        height: 65px;
+        padding: 0 12px;
+    }
+    
+    .center-section {
+        font-size: 16px;
+        position: static;
+        transform: none;
+        flex: 1;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .logo-left {
+        height: 45px;
+    }
+    
+    .logo-right {
+        height: 30px;
+    }
+    
+    .user-btn {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .user-btn i {
+        font-size: 16px;
+    }
+    
+    .user-btn .user-name {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .top-header {
+        height: 60px;
+        padding: 0 10px;
+    }
+    
+    .header-container {
+        gap: 5px;
+    }
+    
+    .center-section {
+        font-size: 14px;
+    }
+    
+    .logo-left {
+        height: 40px;
+    }
+    
+    .logo-right {
+        height: 28px;
+    }
+    
+    .user-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+        border-radius: 20px;
+    }
+    
+    .user-btn i {
+        font-size: 14px;
+    }
+    
+    .dropdown-menu {
+        font-size: 13px;
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 400px) {
+    .top-header {
+        height: 55px;
+        padding: 0 8px;
+    }
+    
+    .center-section {
+        font-size: 12px;
+    }
+    
+    .logo-left {
+        height: 35px;
+    }
+    
+    .logo-right {
+        height: 25px;
+    }
+    
+    .user-btn {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+    
+    .user-btn i {
+        font-size: 12px;
     }
 }
 
@@ -188,15 +320,19 @@ body {
                 <div class="dropdown">
                     <button class="btn user-btn dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle"></i>
-                        <?= htmlspecialchars($user_name) ?> (<?= ucfirst($role) ?>)
+                        <span class="user-name"><?= htmlspecialchars($user_name) ?> (<?= ucfirst($role) ?>)</span>
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li><a class="dropdown-item" href="<?= $base_url ?>/profile.php">My Profile</a></li>
+                        <li>
+                            <a class="dropdown-item" href="<?= $base_url ?>/profile.php">
+                                <i class="bi bi-person me-2"></i>My Profile
+                            </a>
+                        </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item text-danger" href="<?= $base_url ?>/../api/logout.php">
-                                Logout
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
                             </a>
                         </li>
                     </ul>
@@ -213,19 +349,9 @@ body {
     <div class="p-2">
 
         <!-- COMMON (ALL USERS) -->
-        <?php if($role == 'seller'): ?>
-            <a href="<?= $base_url ?>/seller/marketplace.php" class="nav-link <?= $current_page=='marketplace.php'?'active':'' ?>">
-                <i class="bi bi-shop me-2"></i> Marketplace
-            </a>
-        <?php elseif($role == 'buyer'): ?>
-            <a href="<?= $base_url ?>/buyer/marketplace.php" class="nav-link <?= $current_page=='marketplace.php'?'active':'' ?>">
-                <i class="bi bi-shop me-2"></i> Marketplace
-            </a>
-        <?php else: ?>
-            <a href="<?= $base_url ?>/marketplace.php" class="nav-link <?= $current_page=='marketplace.php'?'active':'' ?>">
-                <i class="bi bi-shop me-2"></i> Marketplace
-            </a>
-        <?php endif; ?>
+        <a href="<?= $base_url ?>/marketplace.php" class="nav-link <?= $current_page=='marketplace.php'?'active':'' ?>">
+            <i class="bi bi-shop me-2"></i> Marketplace
+        </a>
         
         <?php if($role == 'seller'): ?>
             <a href="<?= $base_url ?>/seller/dashboard.php" class="nav-link <?= $current_page=='dashboard.php'?'active':'' ?>">

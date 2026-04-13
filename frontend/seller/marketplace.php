@@ -22,91 +22,289 @@ $user_name = $_SESSION['name'] ?? 'User';
     <link href="../assets/css/style.css" rel="stylesheet">
 
     <style>
+        body {
+            background: #f8fafc;
+        }
+        
         .main-content { 
-            padding: 12px; 
-            margin-top: 8px;
+            padding: 15px; 
+            margin-top: 80px;
             margin-left: 260px;
-            max-height: calc(100vh - 85px);
+            max-height: calc(100vh - 95px);
             overflow-y: auto;
         }
+        
         .market-card {
-            border-radius: 10px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
+        
+        .market-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
         .card-header {
-            padding: 10px 15px !important;
+            padding: 12px 16px !important;
+            border-radius: 12px 12px 0 0 !important;
         }
+        
         .card-header h5 {
-            font-size: 16px !important;
+            font-size: 18px !important;
             margin: 0 !important;
-            font-weight: 600;
+            font-weight: 700;
         }
+        
         .card-header small {
-            font-size: 12px !important;
+            font-size: 13px !important;
         }
+        
+        .badge-live {
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
         .table {
             margin: 0 !important;
-            font-size: 12px;
+            font-size: 13px;
             border-collapse: separate;
             border-spacing: 0;
             width: 100%;
-            table-layout: fixed;
         }
+        
         .table th {
-            background: #1e2937;
+            background: #1e293b;
             color: white;
             text-align: center;
-            padding: 8px 4px !important;
-            font-size: 11px;
+            padding: 10px 8px !important;
+            font-size: 12px;
             white-space: nowrap;
             font-weight: 600;
             border: 1px solid #374151;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
+        
         .table td {
             text-align: center;
             vertical-align: middle;
-            padding: 6px 4px !important;
-            white-space: nowrap;
-            font-size: 12px;
+            padding: 8px 6px !important;
+            font-size: 13px;
             border: 1px solid #e5e7eb;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
+        
         .table tbody tr:hover {
             background-color: #f3f4f6;
         }
+        
         .btn-sm {
             padding: 6px 12px;
             font-size: 12px;
             white-space: nowrap;
+            border-radius: 6px;
         }
+        
         .table-responsive {
-            max-height: 240px;
+            max-height: 280px;
             overflow-y: auto;
-            overflow-x: hidden;
+            overflow-x: auto;
+            border-radius: 0 0 12px 12px;
         }
+        
         .table-responsive::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
+            height: 8px;
         }
+        
         .table-responsive::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 3px;
+            background: #94a3b8;
+            border-radius: 4px;
         }
-        /* Column widths */
-        .col-date { width: 11%; min-width: 75px; }
-        .col-time { width: 13%; min-width: 85px; }
-        .col-name { width: 15%; min-width: 85px; }
-        .col-units { width: 12%; min-width: 65px; }
-        .col-price { width: 11%; min-width: 60px; }
-        .col-left { width: 12%; min-width: 65px; }
-        .col-action { width: 14%; min-width: 80px; }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-content {
+                margin-left: 260px;
+            }
+            
+            .table {
+                font-size: 12px;
+            }
+            
+            .table th {
+                font-size: 11px;
+                padding: 8px 6px !important;
+            }
+            
+            .table td {
+                font-size: 12px;
+                padding: 6px 4px !important;
+            }
+        }
         
         @media (max-width: 992px) {
-            .main-content { margin-left: 0; }
+            .main-content { 
+                margin-left: 0;
+                padding: 12px;
+                margin-top: 80px;
+            }
+            
+            .card-header h5 {
+                font-size: 16px !important;
+            }
+            
+            .table {
+                font-size: 11px;
+            }
+            
+            .table th {
+                font-size: 10px;
+                padding: 6px 4px !important;
+            }
+            
+            .table td {
+                font-size: 11px;
+                padding: 5px 3px !important;
+            }
+            
+            .table-responsive {
+                max-height: 220px;
+            }
+            
+            .btn-sm {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px;
+                margin-top: 75px;
+            }
+            
+            h2 {
+                font-size: 20px !important;
+            }
+            
+            .card-header h5 {
+                font-size: 14px !important;
+            }
+            
+            .card-header small {
+                font-size: 11px !important;
+            }
+            
+            .table {
+                font-size: 10px;
+            }
+            
+            .table th {
+                font-size: 9px;
+                padding: 5px 3px !important;
+            }
+            
+            .table td {
+                font-size: 10px;
+                padding: 4px 2px !important;
+            }
+            
+            .table-responsive {
+                max-height: 200px;
+            }
+            
+            .btn-sm {
+                padding: 3px 6px;
+                font-size: 10px;
+            }
+            
+            .badge-live {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+            
+            .market-card {
+                margin-bottom: 12px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 8px;
+                margin-top: 70px;
+            }
+            
+            h2 {
+                font-size: 18px !important;
+            }
+            
+            .card-header {
+                padding: 10px 12px !important;
+            }
+            
+            .card-header h5 {
+                font-size: 13px !important;
+            }
+            
+            .card-header small {
+                font-size: 10px !important;
+                display: block;
+                margin-top: 2px;
+            }
+            
+            .table {
+                font-size: 9px;
+            }
+            
+            .table th {
+                font-size: 8px;
+                padding: 4px 2px !important;
+            }
+            
+            .table td {
+                font-size: 9px;
+                padding: 3px 2px !important;
+            }
+            
+            .table-responsive {
+                max-height: 180px;
+            }
+            
+            .btn-sm {
+                padding: 2px 5px;
+                font-size: 9px;
+            }
+            
+            .badge-live {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 8px;
+            }
+            
+            .market-card {
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -116,31 +314,31 @@ $user_name = $_SESSION['name'] ?? 'User';
 
 <div class="main-content">
     
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <h2 class="mb-0">🏪 Live Marketplace</h2>
         <span class="badge badge-live">● LIVE</span>
     </div>
 
-    <div class="row g-2">
+    <div class="row g-3">
 
         <!-- Available Energy (Seller / Prosumer Listings) -->
         <div class="col-lg-6 col-md-12">
             <div class="market-card card h-100" style="background: linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%); border: 2px solid #fcd34d;">
-                <div class="card-header d-flex justify-content-between" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; border-bottom: 2px solid #d97706;">
+                <div class="card-header d-flex justify-content-between flex-wrap" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; border-bottom: 2px solid #d97706;">
                     <h5 class="mb-0">⚡ Available Energy</h5>
                     <small style="color: rgba(255,255,255,0.9);">Cheapest first</small>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive" style="max-height: 240px; overflow-x: hidden;">
-                        <table class="table table-hover mb-0 table-sm table-bordered" style="width: 100%;">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 table-sm table-bordered">
                             <thead>
                                 <tr>
-                                    <th class="col-date">Date</th>
-                                    <th class="col-time">Time</th>
-                                    <th class="col-name">Seller</th>
-                                    <th class="col-units">Units</th>
-                                    <th class="col-price">Price</th>
-                                    <th class="col-left">Left</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Seller</th>
+                                    <th>Units</th>
+                                    <th>Price</th>
+                                    <th>Left</th>
                                 </tr>
                             </thead>
                             <tbody id="listingTable">
@@ -155,21 +353,21 @@ $user_name = $_SESSION['name'] ?? 'User';
         <!-- Buyer Demands -->
         <div class="col-lg-6 col-md-12">
             <div class="market-card card h-100" style="background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%); border: 2px solid #93c5fd;">
-                <div class="card-header d-flex justify-content-between" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-bottom: 2px solid #1d4ed8;">
+                <div class="card-header d-flex justify-content-between flex-wrap" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-bottom: 2px solid #1d4ed8;">
                     <h5 class="mb-0">🛒 Buyer Demands</h5>
                     <small style="color: rgba(255,255,255,0.9);">Highest price first</small>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive" style="max-height: 240px; overflow-x: hidden;">
-                        <table class="table table-hover mb-0 table-sm table-bordered" style="width: 100%;">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 table-sm table-bordered">
                             <thead>
                                 <tr>
-                                    <th class="col-date">Date</th>
-                                    <th class="col-time">Time</th>
-                                    <th class="col-name">Buyer</th>
-                                    <th class="col-units">Units</th>
-                                    <th class="col-price">Max ₹</th>
-                                    <th class="col-left">Left</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Buyer</th>
+                                    <th>Units</th>
+                                    <th>Max ₹</th>
+                                    <th>Left</th>
                                 </tr>
                             </thead>
                             <tbody id="demandTable">
@@ -184,30 +382,30 @@ $user_name = $_SESSION['name'] ?? 'User';
     </div>
 
     <!-- Live Best Matches Section -->
-    <div class="row mt-1">
+    <div class="row mt-3">
         <div class="col-12">
             <div class="market-card card">
-                <div class="card-header bg-white">
+                <div class="card-header bg-white d-flex justify-content-between flex-wrap">
                     <h5 class="mb-0">🔥 Live Best Matches</h5>
                     <small class="text-muted">Updated every 3 seconds</small>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive" style="max-height: 180px; overflow-x: hidden;">
-                        <table class="table table-bordered table-hover mb-0 table-sm" style="width: 100%; table-layout: fixed;">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mb-0 table-sm">
                             <thead class="table-dark">
                                 <tr>
-                                    <th style="width: 9%; font-size: 10px;">Date</th>
-                                    <th style="width: 10%; font-size: 10px;">Time</th>
-                                    <th style="width: 7%; font-size: 10px;">Units</th>
-                                    <th style="width: 14%; font-size: 10px;">Seller</th>
-                                    <th style="width: 9%; font-size: 10px;">Avail</th>
-                                    <th style="width: 14%; font-size: 10px;">Buyer</th>
-                                    <th style="width: 9%; font-size: 10px;">Need</th>
-                                    <th style="width: 9%; font-size: 10px;">Price</th>
-                                    <th style="width: 11%; font-size: 10px;">Status</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Units</th>
+                                    <th>Seller</th>
+                                    <th>Avail</th>
+                                    <th>Buyer</th>
+                                    <th>Need</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="matchTable" style="font-size: 11px;">
+                            <tbody id="matchTable">
                                 <tr><td colspan="9" class="text-center py-2">Waiting for matches...</td></tr>
                             </tbody>
                         </table>

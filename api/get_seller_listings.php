@@ -7,6 +7,11 @@ if(!isset($_SESSION['user_id'])){
 }
 
 $user_id = $_SESSION['user_id'];
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+
+// Validate limit
+if($limit < 1) $limit = 10;
+if($limit > 1000) $limit = 1000;
 
 $query = "
     SELECT date, time_block, units_available, remaining_units, price, status 
@@ -14,6 +19,7 @@ $query = "
     WHERE user_id = $user_id 
     AND remaining_units > 0
     ORDER BY date DESC, time_block ASC
+    LIMIT $limit
 ";
 
 $result = $conn->query($query);

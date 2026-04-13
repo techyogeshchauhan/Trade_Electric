@@ -237,9 +237,18 @@ body {
         <!-- My Listings -->
         <div class="col-lg-7">
             <div class="card">
-                <div class="card-header d-flex justify-content-between">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <b>My Listings</b>
-                    <a href="my_listings.php" class="btn btn-sm btn-outline-primary">View All</a>
+                    <div class="d-flex gap-2 align-items-center">
+                        <label class="mb-0 me-2" style="font-size: 14px;">Show:</label>
+                        <select id="recordsPerPage" class="form-select form-select-sm" style="width: auto;">
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <a href="my_listings.php" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -252,10 +261,11 @@ body {
                                     <th>Total (kWh)</th>
                                     <th>Remaining (kWh)</th>
                                     <th>Price (₹)</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody id="listingData">
-                                <tr><td colspan="5">Loading...</td></tr>
+                                <tr><td colspan="6">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -324,10 +334,19 @@ $("#energyForm").submit(function(e){
     });
 });
 function loadListings(){
-    $("#listingData").load("../../api/get_seller_listings.php");
+    const limit = $("#recordsPerPage").val() || 10;
+    $.get("../../api/get_seller_listings.php?limit=" + limit, function(data){
+        $("#listingData").html(data);
+    });
 }
 
+// Load listings on page load
 loadListings();
+
+// Reload when dropdown changes
+$("#recordsPerPage").change(function(){
+    loadListings();
+});
 </script>
 
 </body>

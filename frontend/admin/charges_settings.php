@@ -26,22 +26,67 @@ $settings = $conn->query("SELECT * FROM settings LIMIT 1")->fetch_assoc() ?? [
     <link href="../assets/css/style.css" rel="stylesheet">
 
     <style>
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+            color: #1f2937;
+            font-size: 15px;
+        }
+        
         .main-content {
-            margin-left: 260px;
-            margin-top: 100px;
-            padding: 30px;
+            margin-top: 80px;
+            padding: 20px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
         }
+        
         .settings-card {
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 620px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            max-width: 700px;
+            margin: 0 auto;
         }
+        
         .section-title {
             font-size: 1.1rem;
             font-weight: 600;
             color: #1e40af;
             border-bottom: 2px solid #e0f2fe;
             padding-bottom: 8px;
+        }
+        
+        .form-control, .input-group-text {
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 15px;
+        }
+        
+        .form-control:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        
+        .btn-primary {
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .top-bar {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 28px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .top-bar h4 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 20px;
         }
     </style>
 </head>
@@ -50,7 +95,10 @@ $settings = $conn->query("SELECT * FROM settings LIMIT 1")->fetch_assoc() ?? [
 <?php include '../includes/header.php'; ?>
 
 <div class="main-content">
-    <h2 class="mb-4">⚙️ Charges Settings (Admin)</h2>
+
+<div class="top-bar">
+        <h4><i class="bi bi-gear-fill me-2 text-primary"></i>Charges Settings</h4>
+    </div>
 
     <div class="settings-card card p-4">
         <form id="chargesForm">
@@ -95,6 +143,7 @@ $settings = $conn->query("SELECT * FROM settings LIMIT 1")->fetch_assoc() ?? [
 
         <div id="msg" class="mt-3"></div>
     </div>
+
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
