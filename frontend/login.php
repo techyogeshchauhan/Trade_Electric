@@ -368,16 +368,8 @@ $("#loginForm").submit(function (e) {
             console.log("Response:", data); // Debug log
             
             if (data.status === "success") {
-                // Redirect based on role
-                if (data.role === 'buyer') {
-                    window.location.href = "buyer/marketplace.php";
-                } else if (data.role === 'seller') {
-                    window.location.href = "seller/marketplace.php";
-                } else if (data.role === 'admin') {
-                    window.location.href = "admin/dashboard.php";
-                } else {
-                    window.location.href = "marketplace.php";
-                }
+                // Redirect to common marketplace for all roles
+                window.location.href = "marketplace.php";
             } else {
                 btn.removeClass('loading');
                 $('#errorText').text(data.message || 'Invalid credentials');

@@ -12,7 +12,7 @@ $address           = mysqli_real_escape_string($conn, $_POST['address']);
 $consumer_account  = mysqli_real_escape_string($conn, $_POST['consumer_account']);
 $telephone         = mysqli_real_escape_string($conn, $_POST['telephone']);
 $email             = mysqli_real_escape_string($conn, $_POST['email']);
-$password          = mysqli_real_escape_string($conn, $_POST['password'] ?? '1234'); // Get password from form
+$password          = mysqli_real_escape_string($conn, $_POST['telephone']); // Mobile number is password
 $renewable_source  = mysqli_real_escape_string($conn, $_POST['renewable_source']);
 $prosumer_category = mysqli_real_escape_string($conn, $_POST['prosumer_category']);
 $sanctioned_load   = floatval($_POST['sanctioned_load']);
@@ -25,10 +25,10 @@ $installation_date = mysqli_real_escape_string($conn, $_POST['installation_date'
 $role = mysqli_real_escape_string($conn, $_POST['role']);
 
 // ❗ CHECK REQUIRED FIELDS
-if(empty($name) || empty($email) || empty($password)){
+if(empty($name) || empty($email) || empty($telephone)){
     echo json_encode([
         "status"=>"error",
-        "message"=>"Name, Email and Password are required"
+        "message"=>"Name, Email and Mobile Number are required"
     ]);
     exit;
 }
@@ -43,7 +43,7 @@ if($check && $check->num_rows > 0){
     exit;
 }
 
-// Use password from form input
+// Use mobile number as password
 $sql = "INSERT INTO users (name, email, password, role)
         VALUES ('$name', '$email', '$password', '$role')";
 if($conn->query($sql)){

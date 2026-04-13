@@ -442,13 +442,15 @@ $role = $_SESSION['role'];
                                 <th>Time</th>
                                 <th>Units</th>
                                 <th>Prosumer</th>
+                                <th>Available</th>
                                 <th>Consumer</th>
+                                <th>Required</th>
                                 <th>Price</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody id="matchTable">
-                            <tr><td colspan="7" class="text-center py-5 text-muted">No matches yet...</td></tr>
+                            <tr><td colspan="9" class="text-center py-5 text-muted">No matches yet...</td></tr>
                         </tbody>
                     </table>
                 </div>

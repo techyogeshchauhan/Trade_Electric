@@ -58,7 +58,7 @@ if (!$result) {
 <!DOCTYPE html>
 <html>
 <head>
-<title>Trade History</title>
+<title>Smart Trade History</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -115,7 +115,7 @@ body {
 <div class="main-content container-fluid">
 
 <h2 class="mb-4">
-<i class="fas fa-exchange-alt me-2"></i>Trade History
+<i class="fas fa-exchange-alt me-2"></i>Smart Trade History
 </h2>
 
 <?php if ($role == 'seller'): ?>
@@ -165,7 +165,7 @@ body {
     <?php endif; ?>
     <th>Date</th>
     <th>Time Slot</th>
-    <th>Units Traded</th>
+    <th>Units Smart Traded</th>
     <th>Price/Unit</th>
     <th>Total</th>
     <th><?= ($role == 'buyer') ? 'Seller' : 'Buyer' ?></th>
@@ -248,7 +248,7 @@ while ($row = $result->fetch_assoc()) {
 
 <tr>
 <td colspan="<?= $role == 'buyer' ? '8' : '9' ?>" class="no-data">
-No trades found
+No smart trades found
 </td>
 </tr>
 
@@ -334,7 +334,7 @@ function loadPendingContracts() {
 // Confirm or Reject Contract
 function confirmContract(contractId, action) {
     let message = action === 'confirm' 
-        ? "Are you sure you want to CONFIRM this contract?\n\nThis will execute the trade immediately."
+        ? "Are you sure you want to CONFIRM this contract?\n\nThis will execute the smart trade immediately."
         : "Are you sure you want to REJECT this contract?";
     
     if(!confirm(message)) return;
@@ -348,7 +348,7 @@ function confirmContract(contractId, action) {
         if(data.success) {
             alert("✅ " + data.message);
             loadPendingContracts();
-            location.reload(); // Reload to show updated trade history
+            location.reload(); // Reload to show updated smart trade history
         } else {
             alert("❌ " + (data.message || "Operation failed"));
         }

@@ -1,6 +1,11 @@
 <?php
+session_start();
 ob_start();
 include '../frontend/includes/config.php';
+
+// Get current user role
+$current_user_role = $_SESSION['role'] ?? '';
+$current_user_id = $_SESSION['user_id'] ?? 0;
 
 // Get today's date and limit to recent data
 $today = date('Y-m-d');
@@ -33,6 +38,18 @@ if ($result && $result->num_rows > 0) {
         $units = number_format($row['units_available'], 0);
         $remaining = number_format($row['remaining_units'], 0);
         
+        // Action button - only for buyers
+        $action_btn = '';
+        if ($current_user_role === 'buyer' && $row['user_id'] != $current_user_id) {
+            $action_btn = "<button class='btn btn-success btn-sm' onclick='placeBid({$row['id']})'>
+                            <i class='bi bi-cart-plus'></i> Bid
+                          </button>";
+        } else if ($current_user_role === 'seller' && $row['user_id'] == $current_user_id) {
+            $action_btn = "<span class='badge bg-info'>Your Listing</span>";
+        } else {
+            $action_btn = "<span class='text-muted'>—</span>";
+        }
+        
         echo "<tr>
                 <td>$date</td>
                 <td>$time_block</td>
@@ -40,10 +57,11 @@ if ($result && $result->num_rows > 0) {
                 <td>$units kWh</td>
                 <td>₹$price</td>
                 <td>$remaining kWh</td>
+                <td>$action_btn</td>
               </tr>";
     }
 } else {
-    echo "<tr><td colspan='6' class='text-center py-3 text-muted'>
+    echo "<tr><td colspan='7' class='text-center py-3 text-muted'>
             <i class='bi bi-inbox'></i> No energy listings available
           </td></tr>";
 }

@@ -41,7 +41,7 @@ if (!empty($buyer_filter)) $query .= " AND t.buyer_id = '$buyer_filter'";
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trades</title>
+<title>Smart Trades</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
@@ -150,7 +150,7 @@ body {
 <div class="main-content">
 
 <div class="top-bar">
-        <h4><i class="bi bi-arrow-left-right me-2 text-info"></i>All Trades</h4>
+        <h4><i class="bi bi-arrow-left-right me-2 text-info"></i>All Smart Trades</h4>
         <div class="top-stats">
             <div>
                 <div class="top-stat-val"><?= $totalCount ?></div>
@@ -267,7 +267,7 @@ body {
                     </tr>
                 <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="11"><div class="empty-msg">No trades found</div></td></tr>
+                    <tr><td colspan="11"><div class="empty-msg">No smart trades found</div></td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>

@@ -275,9 +275,9 @@ body {
 
     </div>
 
-    <!-- Trades -->
+    <!-- Smart Trades -->
     <div class="card mt-4">
-        <div class="card-header"><b>Recent Trades</b></div>
+        <div class="card-header"><b>Recent Smart Trades</b></div>
         <div class="card-body">
             <table class="table table-bordered">
                 <thead>
@@ -302,7 +302,7 @@ body {
                     </tr>
                     <?php endwhile; ?>
                     <?php if($trades->num_rows == 0): ?>
-                    <tr><td colspan="6">No trades yet</td></tr>
+                    <tr><td colspan="6">No smart trades yet</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

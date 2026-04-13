@@ -86,9 +86,16 @@ if (!is_numeric($units) || !is_numeric($price_per_unit)) {
     exit;
 }
 
-// Calculate amounts with correct fee structure
+// Calculate amounts according to KERC P2P Regulations 2024
 $total_amount = $units * $price_per_unit;
+
+// KERC Transaction Charges: 14 paise per unit (as per KERC guidelines)
+$transaction_charge = $units * 0.14;
+
+// Platform fee (for service provider)
 $platform_fee = $units * 0.25;  // ₹0.25 per unit
+
+// Green Energy Open Access charges (as per KERC tariff order)
 $utility_fee = $units * 0.02;   // ₹0.02 per unit
 
 // Generate unique contract ID
@@ -98,8 +105,8 @@ $contract_id = 'CONTRACT-' . date('Ymd-His') . '-' . rand(1000, 9999);
 $sql = "INSERT INTO contracts (
     contract_id, buyer_id, seller_id, listing_id, demand_id, 
     date, time_block, units, price_per_unit, total_amount, 
-    platform_fee, utility_fee, status
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
+    transaction_charge, platform_fee, utility_fee, status
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
 
 $stmt = $conn->prepare($sql);
 
@@ -112,10 +119,10 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "siiiissddddd",  // FIXED: 12 characters (s + 4i + 2s + 5d)
+    "siiiissdddddd",  // s + 4i + 2s + 6d = 13 parameters
     $contract_id, $buyer_id, $seller_id, $listing_id, $demand_id,
     $date, $time_block, $units, $price_per_unit, $total_amount,
-    $platform_fee, $utility_fee
+    $transaction_charge, $platform_fee, $utility_fee
 );
 
 if ($stmt->execute()) {

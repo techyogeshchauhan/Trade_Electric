@@ -105,6 +105,45 @@ body {
     font-size: 18px;
 }
 
+/* HAMBURGER MENU */
+.hamburger-btn {
+    display: none;
+    background: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hamburger-btn i {
+    font-size: 20px;
+    color: #1e3a8a;
+}
+
+.hamburger-btn:hover {
+    background: #f0f9ff;
+}
+
+/* SIDEBAR OVERLAY */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.show {
+    display: block;
+    opacity: 1;
+}
+
 /* ================= SIDEBAR ================= */
 .sidebar {
     position: fixed;
@@ -168,6 +207,10 @@ body {
 
 /* ================= MOBILE ================= */
 @media (max-width: 992px) {
+    .hamburger-btn {
+        display: block;
+    }
+    
     .sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
@@ -305,6 +348,11 @@ body {
 <div class="top-header">
     <div class="header-container">
 
+        <!-- HAMBURGER MENU (Mobile) -->
+        <button class="hamburger-btn" id="hamburgerBtn">
+            <i class="bi bi-list"></i>
+        </button>
+
         <!-- LEFT LOGO -->
         <img src="<?= $base_url ?>/../assets/gescomLogo.png" class="logo-left">
 
@@ -345,7 +393,12 @@ body {
         </div>
     </div>
 </div>
-<div class="sidebar">
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
     <div class="p-2">
 
         <!-- COMMON (ALL USERS) -->
@@ -395,7 +448,7 @@ body {
         <!-- COMMON ADVANCED -->
         <?php if($role == 'buyer' || $role == 'seller'): ?>
             <a href="<?= $base_url ?>/dashboard/trades.php" class="nav-link <?= $current_page=='trades.php'?'active':'' ?>">
-                <i class="bi bi-arrow-left-right me-2"></i> Trades
+                <i class="bi bi-arrow-left-right me-2"></i> Smart Trades
             </a>
 
             <a href="<?= $base_url ?>/dashboard/settlement.php" class="nav-link <?= $current_page=='settlement.php'?'active':'' ?>">
@@ -424,3 +477,35 @@ body {
 
 <!-- Bootstrap JS (Required for Dropdown) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Mobile sidebar toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    if (hamburgerBtn && sidebar && overlay) {
+        // Open sidebar
+        hamburgerBtn.addEventListener('click', function() {
+            sidebar.classList.add('show');
+            overlay.classList.add('show');
+        });
+        
+        // Close sidebar when clicking overlay
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        });
+        
+        // Close sidebar when clicking any nav link
+        const navLinks = sidebar.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            });
+        });
+    }
+});
+</script>

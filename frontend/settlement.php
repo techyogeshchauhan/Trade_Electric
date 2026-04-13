@@ -178,7 +178,7 @@ body { background: #f4f6f9; }
 <div class="row g-3 mb-4">
     <div class="col-md-4">
         <div class="card-box bg1">
-            <h6>Total Trades</h6>
+            <h6>Total Smart Trades</h6>
             <h3 class="mb-0"><?= $summary['total_trades'] ?? 0 ?></h3>
         </div>
     </div>
@@ -314,7 +314,7 @@ function showDebug(msg){
 }
 
 function settleTrade(tradeId){
-    if(!confirm('Settle this trade? Buyer tokens will be BURNED.')){
+    if(!confirm('Settle this smart trade? Buyer tokens will be BURNED.')){
         return;
     }
 
