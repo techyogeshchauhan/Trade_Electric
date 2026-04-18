@@ -10,7 +10,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 // Get base URL dynamically
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
 $host = $_SERVER['HTTP_HOST'];
-$base_url = $protocol . "://" . $host . "/apc/New_project/frontend";
+$script_name = $_SERVER['SCRIPT_NAME'];
+$frontend_dir_pos = strpos($script_name, '/frontend');
+$frontend_path = ($frontend_dir_pos !== false) ? substr($script_name, 0, $frontend_dir_pos + 9) : '/frontend';
+$base_url = $protocol . "://" . $host . $frontend_path;
 ?>
 
 <!DOCTYPE html>
@@ -166,13 +169,14 @@ body {
     margin: 6px 12px;
     display: flex;
     align-items: center;
-    font-weight: 500;
+    font-weight: 700;
+    font-size: 18px;
     transition: all 0.25s ease;
 }
 
 /* ICON */
 .sidebar .nav-link i {
-    font-size: 18px;
+    font-size: 22px;
     color: #ffffff;
 }
 
@@ -354,11 +358,21 @@ body {
         </button>
 
         <!-- LEFT LOGO -->
-        <img src="<?= $base_url ?>/../assets/gescomLogo.png" class="logo-left">
+        <?php 
+        $logo_left_path = defined('LOGO_LEFT') ? LOGO_LEFT : '../assets/gescomLogo.png';
+        // Adjust path based on current directory depth
+        if (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false || 
+            strpos($_SERVER['REQUEST_URI'], '/buyer/') !== false || 
+            strpos($_SERVER['REQUEST_URI'], '/seller/') !== false ||
+            strpos($_SERVER['REQUEST_URI'], '/dashboard/') !== false) {
+            $logo_left_path = str_replace('../', '../../', $logo_left_path);
+        }
+        ?>
+        <img src="<?= $logo_left_path ?>" class="logo-left" alt="Logo">
 
         <!-- CENTER TITLE -->
         <div class="center-section">
-            P2P Trading Marketplace
+            P2P Energy Trading Marketplace
         </div>
 
         <!-- RIGHT -->
@@ -387,8 +401,18 @@ body {
                 </div>
             <?php endif; ?>
 
-            <!-- APC LOGO -->
-            <img src="<?= $base_url ?>/../assets/apcLogo.jpg" class="logo-right">
+            <!-- RIGHT LOGO -->
+            <?php 
+            $logo_right_path = defined('LOGO_RIGHT') ? LOGO_RIGHT : '../assets/apcLogo.jpg';
+            // Adjust path based on current directory depth
+            if (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false || 
+                strpos($_SERVER['REQUEST_URI'], '/buyer/') !== false || 
+                strpos($_SERVER['REQUEST_URI'], '/seller/') !== false ||
+                strpos($_SERVER['REQUEST_URI'], '/dashboard/') !== false) {
+                $logo_right_path = str_replace('../', '../../', $logo_right_path);
+            }
+            ?>
+            <img src="<?= $logo_right_path ?>" class="logo-right" alt="Logo">
 
         </div>
     </div>
@@ -426,6 +450,10 @@ body {
                 <i class="bi bi-list-ul me-2"></i> My Listings
             </a>
             
+            <a href="<?= $base_url ?>/seller/my_contracts.php" class="nav-link <?= $current_page=='my_contracts.php'?'active':'' ?>">
+                <i class="bi bi-file-earmark-text me-2"></i> My Contracts
+            </a>
+            
             <a href="<?= $base_url ?>/seller/meter_report.php" class="nav-link <?= $current_page=='meter_report.php'?'active':'' ?>">
                 <i class="bi bi-speedometer me-2"></i> Energy Monitor
             </a>
@@ -440,8 +468,23 @@ body {
 
         <!-- ADMIN ONLY -->
         <?php if($role == 'admin'): ?>
-            <a href="<?= $base_url ?>/admin/users.php" class="nav-link">
+            <a href="<?= $base_url ?>/admin/users.php" class="nav-link <?= $current_page=='users.php'?'active':'' ?>">
                 <i class="bi bi-people me-2"></i> Manage Users
+            </a>
+            <a href="<?= $base_url ?>/admin/energy.php" class="nav-link <?= $current_page=='energy.php'?'active':'' ?>">
+                <i class="bi bi-lightning-charge me-2"></i> Energy Listings
+            </a>
+            <a href="<?= $base_url ?>/admin/trades.php" class="nav-link <?= $current_page=='trades.php'?'active':'' ?>">
+                <i class="bi bi-arrow-left-right me-2"></i> All Trades
+            </a>
+            <a href="<?= $base_url ?>/admin/charges_settings.php" class="nav-link <?= $current_page=='charges_settings.php'?'active':'' ?>">
+                <i class="bi bi-gear me-2"></i> Charges Settings
+            </a>
+            <a href="<?= $base_url ?>/admin/system_settings.php" class="nav-link <?= $current_page=='system_settings.php'?'active':'' ?>">
+                <i class="bi bi-sliders me-2"></i> System Settings
+            </a>
+            <a href="<?= $base_url ?>/admin/token_report.php" class="nav-link <?= $current_page=='token_report.php'?'active':'' ?>">
+                <i class="fas fa-coins me-2"></i> Token Report
             </a>
         <?php endif; ?>
 

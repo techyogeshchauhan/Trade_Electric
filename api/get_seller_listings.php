@@ -7,18 +7,26 @@ if(!isset($_SESSION['user_id'])){
 }
 
 $user_id = $_SESSION['user_id'];
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+
+// Get default and max limits from settings
+$settingsQuery = $conn->query("SELECT default_listing_limit, max_listing_limit FROM settings LIMIT 1");
+$settingsData = $settingsQuery ? $settingsQuery->fetch_assoc() : null;
+$default_limit = $settingsData['default_listing_limit'] ?? 10;
+$max_limit_setting = $settingsData['max_listing_limit'] ?? 1000;
+
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : $default_limit;
 
 // Validate limit
-if($limit < 1) $limit = 10;
-if($limit > 1000) $limit = 1000;
+if($limit < 1) $limit = $default_limit;
+if($limit > $max_limit_setting) $limit = $max_limit_setting;
 
 $query = "
     SELECT date, time_block, units_available, remaining_units, price, status 
     FROM energy_listings 
     WHERE user_id = $user_id 
     AND remaining_units > 0
-    ORDER BY date DESC, time_block ASC
+    AND date >= CURDATE()
+    ORDER BY id DESC
     LIMIT $limit
 ";
 

@@ -22,104 +22,201 @@ $role = $_SESSION['role'];
 
     <style>
         body {
-            background: #f8fafc;
+            background: #e8eef3;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .main-content { 
-            padding: 15px; 
+            padding: 20px; 
             margin-top: 80px;
             margin-left: 260px;
             max-height: calc(100vh - 95px);
             overflow-y: auto;
         }
         
-        .market-card {
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            margin-bottom: 15px;
+        /* Page Title */
+        .page-title {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         
-        .market-card:hover {
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-        
-        .card-header {
-            padding: 12px 16px !important;
-            border-radius: 12px 12px 0 0 !important;
-        }
-        
-        .card-header h5 {
-            font-size: 18px !important;
-            margin: 0 !important;
-            font-weight: 700;
-        }
-        
-        .card-header small {
-            font-size: 13px !important;
-        }
-        
-        .badge-live {
-            background: #ef4444;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
+        .page-title h4 {
+            margin: 0;
+            font-size: 20px;
             font-weight: 600;
-            animation: pulse 2s infinite;
+            color: #1e293b;
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        /* Market Cards */
+        .market-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
         }
         
+        /* Card Headers with specific colors */
+        .card-header-yellow {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #78350f;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-header-blue {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: #fff;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-header-dark {
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-header-yellow .badge-price {
+            background: #fff;
+            color: #f59e0b;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        
+        .card-header-blue .badge-price {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        
+        /* Table Styling */
         .table {
             margin: 0 !important;
             font-size: 13px;
-            border-collapse: separate;
-            border-spacing: 0;
+            border-collapse: collapse;
             width: 100%;
         }
         
-        .table th {
+        .table thead th {
             background: #1e293b;
-            color: white;
+            color: #ffffff;
             text-align: center;
             padding: 10px 8px !important;
             font-size: 12px;
-            white-space: nowrap;
-            font-weight: 600;
-            border: 1px solid #374151;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            font-weight: 700;
+            border-bottom: 2px solid #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .table td {
+        .table tbody td {
             text-align: center;
             vertical-align: middle;
-            padding: 8px 6px !important;
+            padding: 12px 8px !important;
             font-size: 13px;
-            border: 1px solid #e5e7eb;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
         }
         
         .table tbody tr:hover {
-            background-color: #f3f4f6;
+            background-color: #f8fafc;
         }
         
-        .btn-sm {
-            padding: 6px 12px;
+        /* Status Badges */
+        .badge-listed {
+            background: #fbbf24;
+            color: #78350f;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .badge-available {
+            background: #10b981;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .badge-matched {
+            background: #10b981;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        /* Action Buttons */
+        .btn-match {
+            background: #10b981;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
             font-size: 12px;
-            white-space: nowrap;
-            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
         }
         
+        .btn-match:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        .btn-bid {
+            background: #10b981;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-bid:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        /* Table Container */
         .table-responsive {
-            max-height: 280px;
+            max-height: 350px;
             overflow-y: auto;
             overflow-x: auto;
-            border-radius: 0 0 12px 12px;
         }
         
         .table-responsive::-webkit-scrollbar {
@@ -128,7 +225,7 @@ $role = $_SESSION['role'];
         }
         
         .table-responsive::-webkit-scrollbar-thumb {
-            background: #94a3b8;
+            background: #cbd5e1;
             border-radius: 4px;
         }
         
@@ -136,59 +233,20 @@ $role = $_SESSION['role'];
             background: #f1f5f9;
         }
         
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .main-content {
-                margin-left: 260px;
-            }
-            
-            .table {
-                font-size: 12px;
-            }
-            
-            .table th {
-                font-size: 11px;
-                padding: 8px 6px !important;
-            }
-            
-            .table td {
-                font-size: 12px;
-                padding: 6px 4px !important;
-            }
+        /* Update Text */
+        .update-text {
+            font-size: 11px;
+            color: #64748b;
+            padding: 8px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
         }
         
+        /* Responsive Design */
         @media (max-width: 992px) {
             .main-content { 
                 margin-left: 0;
-                padding: 12px;
-                margin-top: 80px;
-            }
-            
-            .card-header h5 {
-                font-size: 16px !important;
-            }
-            
-            .table {
-                font-size: 11px;
-            }
-            
-            .table th {
-                font-size: 10px;
-                padding: 6px 4px !important;
-            }
-            
-            .table td {
-                font-size: 11px;
-                padding: 5px 3px !important;
-            }
-            
-            .table-responsive {
-                max-height: 220px;
-            }
-            
-            .btn-sm {
-                padding: 4px 8px;
-                font-size: 11px;
+                padding: 15px;
             }
         }
         
@@ -198,111 +256,18 @@ $role = $_SESSION['role'];
                 margin-top: 75px;
             }
             
-            h2 {
-                font-size: 20px !important;
-            }
-            
-            .card-header h5 {
-                font-size: 14px !important;
-            }
-            
-            .card-header small {
-                font-size: 11px !important;
-            }
-            
             .table {
-                font-size: 10px;
-            }
-            
-            .table th {
-                font-size: 9px;
-                padding: 5px 3px !important;
-            }
-            
-            .table td {
-                font-size: 10px;
-                padding: 4px 2px !important;
-            }
-            
-            .table-responsive {
-                max-height: 200px;
-            }
-            
-            .btn-sm {
-                padding: 3px 6px;
-                font-size: 10px;
-            }
-            
-            .badge-live {
                 font-size: 11px;
-                padding: 4px 8px;
             }
             
-            .market-card {
-                margin-bottom: 12px;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 8px;
-                margin-top: 70px;
-            }
-            
-            h2 {
-                font-size: 18px !important;
-            }
-            
-            .card-header {
-                padding: 10px 12px !important;
-            }
-            
-            .card-header h5 {
-                font-size: 13px !important;
-            }
-            
-            .card-header small {
-                font-size: 10px !important;
-                display: block;
-                margin-top: 2px;
-            }
-            
-            .table {
-                font-size: 9px;
-            }
-            
-            .table th {
-                font-size: 8px;
-                padding: 4px 2px !important;
-            }
-            
-            .table td {
-                font-size: 9px;
-                padding: 3px 2px !important;
-            }
-            
-            .table-responsive {
-                max-height: 180px;
-            }
-            
-            .btn-sm {
-                padding: 2px 5px;
-                font-size: 9px;
-            }
-            
-            .badge-live {
+            .table thead th {
                 font-size: 10px;
-                padding: 3px 6px;
+                padding: 8px 4px !important;
             }
             
-            .d-flex.justify-content-between {
-                flex-direction: column;
-                align-items: flex-start !important;
-                gap: 8px;
-            }
-            
-            .market-card {
-                margin-bottom: 10px;
+            .table tbody td {
+                font-size: 11px;
+                padding: 10px 4px !important;
             }
         }
     </style>
@@ -313,148 +278,98 @@ $role = $_SESSION['role'];
 
 <div class="main-content">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-0 fw-semibold">
-                <i class="bi bi-lightning-charge-fill text-warning"></i> 
-                Energy Trading Marketplace
-            </h2>
-            <p class="text-muted mb-0">Real-time buyer & seller trading</p>
-        </div>
+    <!-- Page Title -->
+    <div class="page-title">
+        <h4>🏪 Live Marketplace</h4>
     </div>
 
-    <!-- Filters -->
-    <div class="row mb-4 g-3">
-        <div class="col-md-3">
-            <label class="form-label fw-bold">Date</label>
-            <input type="date" id="filter_date" class="form-control">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label fw-bold">Time Block</label>
-            <select id="filter_time" class="form-select">
-                <option value="">All</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label fw-bold">Sort</label>
-            <select id="sort_by" class="form-select">
-                <option value="best_match">Best Match</option>
-                <option value="price_low">Price: Low to High</option>
-                <option value="price_high">Price: High to Low</option>
-            </select>
-        </div>
-        <div class="col-md-3 d-flex align-items-end">
-            <button class="btn btn-primary w-100" onclick="loadMarketplace()">
-                <i class="bi bi-funnel-fill"></i> Apply
-            </button>
-        </div>
-    </div>
-
-    <div class="row g-4">
-
-        <!-- Available Energy -->
+    <!-- Parallel Tables Row -->
+    <div class="row g-3 mb-3">
+        <!-- Available Energy (Yellow Header) - Left Side -->
         <div class="col-lg-6">
-            <div class="market-card card h-100">
-                <div class="card-header py-3">
-                    <h5 class="mb-0 section-title">
-                        ⚡ Available Energy
-                    </h5>
+            <div class="market-card">
+                <div class="card-header-yellow">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    <span>Available Energy</span>
+                    <span class="badge-price">Cheapest first</span>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Seller</th>
-                                    <th>Units</th>
-                                    <th>Price</th>
-                                    <th>Remaining</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="listingTable">
-                                <tr><td colspan="7" class="text-center py-5 text-muted">Loading available energy...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center p-3 border-top">
-                        <button class="btn btn-outline-primary btn-sm" onclick="showMoreListings()">
-                            <i class="bi bi-arrow-down-circle me-1"></i>Show More
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Buyer Demand -->
-        <div class="col-lg-6">
-            <div class="market-card card h-100">
-                <div class="card-header py-3">
-                    <h5 class="mb-0 section-title">
-                        🛒 Consumer Demand
-                    </h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Buyer</th>
-                                    <th>Units</th>
-                                    <th>Max Price</th>
-                                    <th>Remaining</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="demandTable">
-                                <tr><td colspan="7" class="text-center py-5 text-muted">Loading buyer demands...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center p-3 border-top">
-                        <button class="btn btn-outline-success btn-sm" onclick="showMoreListings()">
-                            <i class="bi bi-arrow-down-circle me-1"></i>Show More
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Live Matches -->
-    <div class="mt-4">
-        <div class="market-card card">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 section-title">🔥 Live Matches</h5>
-               
-            </div>
-            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-dark">
+                    <table class="table mb-0">
+                        <thead>
                             <tr>
                                 <th>Date</th>
                                 <th>Time</th>
-                                <th>Units</th>
-                                <th>Prosumer</th>
-                                <th>Available</th>
-                                <th>Consumer</th>
-                                <th>Required</th>
+                                <th>Seller Name</th>
+                                <th>Units Available</th>
                                 <th>Price</th>
-                                <th>Status</th>
+                                <th>Units Left</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="matchTable">
-                            <tr><td colspan="9" class="text-center py-5 text-muted">No matches yet...</td></tr>
+                        <tbody id="listingTable">
+                            <tr><td colspan="7" class="text-center py-4 text-muted">Loading available energy...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
+
+        <!-- Buyer Demands (Blue Header) - Right Side -->
+        <div class="col-lg-6">
+            <div class="market-card">
+                <div class="card-header-blue">
+                    <i class="bi bi-person-fill"></i>
+                    <span>Buyer Demands</span>
+                    <span class="badge-price">Highest price first</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Buyer Name</th>
+                                <th>Units Required</th>
+                                <th>Price</th>
+                                <th>Units Left</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="demandTable">
+                            <tr><td colspan="7" class="text-center py-4 text-muted">Loading buyer demands...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Best Matches (Dark Header) - Full Width -->
+    <div class="market-card">
+        <div class="card-header-dark">
+            <i class="bi bi-fire"></i>
+            <span>Live Best Matches</span>
+        </div>
+        <div class="update-text">Updated every 3 seconds</div>
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Units Matched</th>
+                        <th>Seller Name</th>
+                        <th>Units Available</th>
+                        <th>Buyer Name</th>
+                        <th>Units Required</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="matchTable">
+                    <tr><td colspan="9" class="text-center py-4 text-muted">No matches yet...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -464,31 +379,6 @@ $role = $_SESSION['role'];
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Generate Time Blocks
-function generateTimeBlocks() {
-    let select = document.getElementById("filter_time");
-    for (let hour = 0; hour < 24; hour++) {
-        for (let min = 0; min < 60; min += 15) {
-            let start = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
-            let endMin = min + 15;
-            let endHour = hour + (endMin >= 60 ? 1 : 0);
-            endMin = endMin >= 60 ? 0 : endMin;
-            if (endHour === 24) endHour = 0;
-
-            let end = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
-            let option = document.createElement("option");
-            option.value = `${start}-${end}`;
-            option.textContent = `${start} - ${end}`;
-            select.appendChild(option);
-        }
-    }
-}
-
-function setTodayDate() {
-    let today = new Date().toISOString().split('T')[0];
-    document.getElementById("filter_date").value = today;
-}
-
 // Buyer → Place Bid
 function placeBid(listing_id){
     $.post("../api/place_bid.php", {listing_id: listing_id}, function(res){
@@ -497,6 +387,7 @@ function placeBid(listing_id){
     });
 }
 
+// Seller → Match Now
 function matchNow(demand_id){
     $.post("../api/execute_match.php", {demand_id: demand_id}, function(res){
         try {
@@ -517,38 +408,38 @@ function matchNow(demand_id){
     });
 }
 
-// Load all data with limit
-function loadMarketplace(limit = 10) {
-    $.get("../api/get_all_energy_listings.php?limit=" + limit, function(res) {
+// Load all marketplace data
+function loadMarketplace() {
+    // Fetch listings without hardcoded limit (API will use default from settings)
+    $.get("../api/get_all_energy_listings.php", function(res) {
         $("#listingTable").html(res);
+    }).fail(function(xhr, status, error) {
+        console.error("Error loading energy listings:", error);
+        $("#listingTable").html("<tr><td colspan='7' class='text-center text-danger'>Error loading data. Please refresh.</td></tr>");
     });
 
-    $.get("../api/get_all_demands.php?limit=" + limit, function(res) {
+    $.get("../api/get_all_demands.php", function(res) {
         $("#demandTable").html(res);
+    }).fail(function(xhr, status, error) {
+        console.error("Error loading demands:", error);
+        $("#demandTable").html("<tr><td colspan='7' class='text-center text-danger'>Error loading data. Please refresh.</td></tr>");
     });
 
-    $.get("../api/get_market_matches.php?limit=" + limit, function(res) {
+    $.get("../api/get_market_matches.php", function(res) {
         $("#matchTable").html(res);
+    }).fail(function(xhr, status, error) {
+        console.error("Error loading matches:", error);
+        $("#matchTable").html("<tr><td colspan='9' class='text-center text-danger'>Error loading data. Please refresh.</td></tr>");
     });
 }
 
-// Show more functionality
-let currentLimit = 10;
-
-function showMoreListings() {
-    currentLimit += 10;
-    loadMarketplace(currentLimit);
-}
-
-// Auto refresh every 10 seconds (increased from 5)
+// Auto refresh every 3 seconds for live updates
 setInterval(function() {
-    loadMarketplace(currentLimit);
-}, 10000);
+    loadMarketplace();
+}, 3000);
 
-// Initialize
+// Initialize on page load
 $(document).ready(function() {
-    generateTimeBlocks();
-    setTodayDate();
     loadMarketplace();
 });
 </script>

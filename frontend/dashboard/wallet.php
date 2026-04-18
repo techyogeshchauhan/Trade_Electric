@@ -54,8 +54,8 @@ body { background:#f4f6f9; }
 }
 
 .table th {
-    background:#0d6efd;
-    color:white;
+    background: #1e293b;
+    color: #ffffff;
     text-align:center;
     font-size: 13px;
 }

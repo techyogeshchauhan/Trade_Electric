@@ -9,6 +9,14 @@ include '../includes/config.php';
 
  $user_id = $_SESSION['user_id'];
 
+// Fetch trading hours from settings
+$settingsRow = $conn->query("SELECT trading_start_time, trading_end_time FROM settings LIMIT 1")->fetch_assoc();
+$trading_start = $settingsRow['trading_start_time'] ?? '10:00:00';
+$trading_end   = $settingsRow['trading_end_time']   ?? '17:00:00';
+// Convert to H:i format for form options
+$trading_start_hi = substr($trading_start, 0, 5); // "10:00"
+$trading_end_hi   = substr($trading_end,   0, 5); // "17:00"
+
  $userQuery = $conn->query("SELECT name FROM users WHERE id = $user_id");
  $userData = $userQuery->fetch_assoc();
  $userName = $userData['name'] ?? 'Prosumer';
@@ -86,21 +94,70 @@ body {
     color: white;
     text-align: center;
     transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 .stat-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-.card { border-radius: 12px; }
+.card { 
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: none;
+    overflow: hidden;
+}
 
-.table th {
-    background: #0ea5e9;
-    color: white;
+.card-header {
+    background: #fff;
+    border-bottom: 2px solid #f1f5f9;
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.table {
+    margin: 0;
+    font-size: 14px;
+    border-collapse: collapse;
+}
+
+.table thead th {
+    background: #2d3748;
+    color: #ffffff;
     text-align: center;
+    padding: 14px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
 }
-.table td {
+
+.table tbody td {
     text-align: center;
     vertical-align: middle;
+    padding: 14px 12px;
+    font-size: 14px;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #2d3748;
+}
+
+.table tbody tr:hover td {
+    background-color: #f7fafc;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-responsive {
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    background: #ffffff;
 }
 
 /* ✅ TOKEN CARD SPECIAL */
@@ -121,6 +178,13 @@ body {
 }
 .token-card h3 {
     color: #ffc107 !important;
+}
+
+@media (max-width: 992px) {
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
 }
 </style>
 </head>
@@ -206,7 +270,9 @@ body {
                             <label>Time Block</label>
                             <select name="time_block" class="form-select">
                                 <?php
-                                for ($time = strtotime("00:00"); $time <= strtotime("23:45"); $time += 900) {
+                                // Dynamic time blocks from settings
+                                $end_for_loop = strtotime($trading_end_hi) - 900; // last block starts 15 min before end
+                                for ($time = strtotime($trading_start_hi); $time <= $end_for_loop; $time += 900) {
                                     $from = date("H:i", $time);
                                     $to = date("H:i", $time + 900);
                                     echo "<option value='$from-$to'>$from - $to</option>";
@@ -291,18 +357,27 @@ body {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while($row = $trades->fetch_assoc()): ?>
+                    <?php while($row = $trades->fetch_assoc()):
+                        $tradeStatus = $row['trade_status'] ?? 'completed';
+                        if ($tradeStatus === 'completed') {
+                            $tBadge = '<span class="badge bg-success">Completed</span>';
+                        } elseif ($tradeStatus === 'fully_sold') {
+                            $tBadge = '<span class="badge bg-primary">Fully Sold</span>';
+                        } else {
+                            $tBadge = '<span class="badge bg-warning text-dark">Pending</span>';
+                        }
+                    ?>
                     <tr>
                         <td><?= formatDate($row['date']) ?></td>
-                        <td><?= $row['time_block'] ?></td>
-                        <td><?= $row['units'] ?></td>
-                        <td>₹ <?= $row['price'] ?></td>
-                        <td><b>₹ <?= $row['total_amount'] ?></b></td>
-                        <td><span class="badge bg-success">Completed</span></td>
+                        <td><?= htmlspecialchars($row['time_block']) ?></td>
+                        <td><?= number_format($row['units'], 2) ?></td>
+                        <td>₹ <?= number_format($row['price'], 2) ?></td>
+                        <td><b>₹ <?= number_format($row['total_amount'], 2) ?></b></td>
+                        <td><?= $tBadge ?></td>
                     </tr>
                     <?php endwhile; ?>
                     <?php if($trades->num_rows == 0): ?>
-                    <tr><td colspan="6">No smart trades yet</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted py-3">No smart trades yet</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

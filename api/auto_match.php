@@ -31,6 +31,7 @@ while($d = $demands->fetch_assoc()){
         AND REPLACE(time_block, ' ', '') = '$time'
         AND remaining_units > 0
         AND price <= $max_price
+        AND status IN ('available', 'active')
     ");
 
     if(!$sellers){

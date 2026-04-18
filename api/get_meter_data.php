@@ -9,7 +9,7 @@ $result = $conn->query("
         AND m.time_block = t.time_block 
         AND t.seller_id = $user_id
     WHERE m.user_id = $user_id
-    ORDER BY m.date DESC, m.time_block ASC
+    ORDER BY m.id DESC
 ");
 
 if ($result->num_rows == 0) {

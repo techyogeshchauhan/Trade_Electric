@@ -13,7 +13,7 @@ $demands = $conn->query("
     SELECT * FROM demand_listings 
     WHERE user_id = $user_id 
     AND remaining_units > 0
-    ORDER BY date ASC, time_block ASC
+    ORDER BY id DESC
 ");
 
 $html = '';
@@ -21,18 +21,22 @@ $match_count = 0;
 
 if ($demands && $demands->num_rows > 0) {
     while ($demand = $demands->fetch_assoc()) {
-        // Find matching energy listings
+        // Normalize time block format (remove spaces)
+        $demand_time = str_replace(' ', '', $demand['time_block']);
+        
+        // Find matching energy listings with normalized time comparison
         $listings = $conn->query("
             SELECT el.*, u.name as seller_name, u.id as seller_id
             FROM energy_listings el
             JOIN users u ON el.user_id = u.id
             WHERE el.date = '{$demand['date']}'
-            AND el.time_block = '{$demand['time_block']}'
+            AND REPLACE(el.time_block, ' ', '') = '$demand_time'
             AND el.remaining_units > 0
             AND el.price <= {$demand['max_price']}
             AND u.role = 'seller'
+            AND el.status IN ('available', 'active')
             ORDER BY el.price ASC
-            LIMIT 5
+            LIMIT 10
         ");
         
         if ($listings && $listings->num_rows > 0) {

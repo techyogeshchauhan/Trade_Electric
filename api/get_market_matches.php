@@ -1,4 +1,5 @@
 <?php
+session_start();
 ob_start();
 include '../frontend/includes/config.php';
 
@@ -12,7 +13,7 @@ FROM demand_listings d
 JOIN users u ON d.user_id = u.id
 WHERE d.remaining_units > 0
 AND d.date >= '$today'
-ORDER BY d.max_price DESC
+ORDER BY d.id DESC
 LIMIT $limit
 ");
 
@@ -29,7 +30,7 @@ while($b = $buyers->fetch_assoc()){
         FROM energy_listings e
         JOIN users u ON e.user_id = u.id
         WHERE e.date='$date'
-        AND e.time_block='$time'
+        AND REPLACE(e.time_block, ' ', '') = REPLACE('$time', ' ', '')
         AND e.remaining_units > 0
         AND e.price <= $max_price
         ORDER BY e.price ASC

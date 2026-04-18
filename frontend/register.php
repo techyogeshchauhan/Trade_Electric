@@ -707,8 +707,13 @@
 
 <!-- HEADER -->
 <div class="header-bar">
-    <img src="../assets/gescomLogo.png" class="idlogo">
-    <img src="../assets/apcLogo.jpg" class="logo">
+    <?php
+    // Get logo paths with proper fallback
+    $logo_left = defined('LOGO_LEFT') ? LOGO_LEFT : '../assets/gescomLogo.png';
+    $logo_right = defined('LOGO_RIGHT') ? LOGO_RIGHT : '../assets/apcLogo.jpg';
+    ?>
+    <img src="<?= $logo_left ?>" class="idlogo" alt="Logo">
+    <img src="<?= $logo_right ?>" class="logo" alt="Logo">
 </div>
 
 <!-- Toast -->
@@ -873,7 +878,7 @@
                         <label class="form-label">Who will purchase the meter?</label>
                         <select name="meter_purchase" class="form-select" id="meterPurchaseInput">
                             <option value="">Select</option>
-                            <option value="GESCOM">GESCOM</option>
+                            <option value="Utility">Utility Company</option>
                             <option value="Prosumer">Consumer</option>
                         </select>
                     </div>

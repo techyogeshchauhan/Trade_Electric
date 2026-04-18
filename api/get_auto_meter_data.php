@@ -54,7 +54,7 @@ $result = $conn->query("
         AND t.seller_id = $user_id
     WHERE m.user_id = $user_id 
       AND m.date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-    ORDER BY m.date DESC, m.time_block ASC
+    ORDER BY m.id DESC
 ");
 
 if ($result->num_rows == 0) {

@@ -122,41 +122,89 @@ $total_available = array_sum(array_column($energy_data, 'available'));
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             position: relative;
             z-index: 1;
+            transition: 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         .card {
             border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             position: relative;
             z-index: 1;
+            border: none;
+            overflow: hidden;
         }
-        .table th {
-            background: #0ea5e9;
+        .card-header {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: white;
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 0 !important;
+        }
+        .table {
+            margin: 0;
+            font-size: 14px;
+            border-collapse: collapse;
+        }
+        .table thead th {
+            background: #2d3748;
+            color: #ffffff;
             text-align: center;
             font-size: 14px;
+            padding: 14px 12px;
+            font-weight: 600;
+            border: none;
+            letter-spacing: 0.3px;
             position: sticky;
             top: 0;
             z-index: 10;
         }
-        .table td {
+        .table tbody td {
             text-align: center;
             vertical-align: middle;
-            font-size: 13px;
+            font-size: 14px;
+            padding: 14px 12px;
+            border: none;
+            border-bottom: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #2d3748;
         }
-        .solar-hours {
-            background: #fef3c7;
+        .table tbody tr:hover td {
+            background-color: #f7fafc;
         }
-        .peak-hour {
-            background: #fef08a;
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .solar-hours td {
+            background: #fef3c7 !important;
+        }
+        .solar-hours:hover td {
+            background: #fde68a !important;
+        }
+        .peak-hour td {
+            background: #fef08a !important;
             font-weight: bold;
         }
-        .no-solar {
-            background: #f1f5f9;
-            color: #94a3b8;
+        .peak-hour:hover td {
+            background: #fde047 !important;
         }
         .token-badge {
             font-size: 24px;
             font-weight: bold;
+        }
+        .table-responsive {
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        @media (max-width: 992px) {
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -239,7 +287,7 @@ $total_available = array_sum(array_column($energy_data, 'available'));
     <!-- Detailed Time Block Data -->
     <div class="card">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="bi bi-table me-2"></i>15-Minute Block Data (96 Blocks)</h5>
+            <h5 class="mb-0"><i class="bi bi-table me-2"></i>Rooftop</h5>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
@@ -258,10 +306,13 @@ $total_available = array_sum(array_column($energy_data, 'available'));
                             $is_solar_hour = ($hour >= 9 && $hour < 17);
                             $is_peak = ($hour >= 14 && $hour < 15);
                             
-                            $row_class = '';
+                            // Skip night blocks (before 9 AM and after 5 PM)
                             if (!$is_solar_hour) {
-                                $row_class = 'no-solar';
-                            } elseif ($is_peak) {
+                                continue;
+                            }
+                            
+                            $row_class = '';
+                            if ($is_peak) {
                                 $row_class = 'peak-hour';
                             } elseif ($is_solar_hour) {
                                 $row_class = 'solar-hours';

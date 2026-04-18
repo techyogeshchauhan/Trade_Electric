@@ -15,15 +15,25 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = (int)$_SESSION['user_id'];
 
 $date = $_POST['date'] ?? '';
-$time_block = $_POST['time_block'] ?? '';
+$start_time = $_POST['start_time'] ?? '';
+$end_time = $_POST['end_time'] ?? '';
 $units = (float)($_POST['units'] ?? 0);
 $price = (float)($_POST['price'] ?? 0);
 
 // Validate input
-if (empty($date) || empty($time_block) || $units <= 0 || $price <= 0) {
+if (empty($date) || empty($start_time) || empty($end_time) || $units <= 0 || $price <= 0) {
     echo json_encode([
         "status" => "error",
         "message" => "Fill all fields correctly"
+    ]);
+    exit();
+}
+
+// Validate time range
+if ($start_time >= $end_time) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "End time must be after start time"
     ]);
     exit();
 }
@@ -35,11 +45,32 @@ $settingsData = $settings ? $settings->fetch_assoc() : [];
 $utility_charge = (float)($settingsData['utility_charge'] ?? 0.02);
 $platform_charge = (float)($settingsData['platform_charge'] ?? 2);
 
+// Generate 15-minute time blocks
+$time_blocks = [];
+$current = strtotime($start_time);
+$end = strtotime($end_time);
+
+while ($current < $end) {
+    $from = date("H:i", $current);
+    $to = date("H:i", $current + 900); // 15 minutes = 900 seconds
+    $time_blocks[] = "$from-$to";
+    $current += 900;
+}
+
+if (empty($time_blocks)) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "No valid time blocks generated"
+    ]);
+    exit();
+}
+
 // Calculate total amount to block
 $energyCost = $units * $price;
 $utility = $units * $utility_charge;
 $platform = $units * $platform_charge;
-$total = $energyCost + $utility + $platform;
+$totalPerBlock = $energyCost + $utility + $platform;
+$totalAmount = $totalPerBlock * count($time_blocks);
 
 // Get wallet
 $walletQuery = $conn->query("
@@ -79,10 +110,10 @@ if (!$wallet) {
 // Check balance
 $currentBalance = (float)$wallet['balance'];
 
-if ($currentBalance < $total) {
+if ($currentBalance < $totalAmount) {
     echo json_encode([
         "status" => "error",
-        "message" => "Insufficient wallet balance. Required ₹" . number_format($total, 2)
+        "message" => "Insufficient wallet balance. Required ₹" . number_format($totalAmount, 2) . " for " . count($time_blocks) . " time blocks"
     ]);
     exit();
 }
@@ -95,8 +126,8 @@ try {
     // Block amount in wallet
     $updateWallet = $conn->query("
         UPDATE wallet
-        SET balance = balance - $total,
-            blocked_balance = blocked_balance + $total
+        SET balance = balance - $totalAmount,
+            blocked_balance = blocked_balance + $totalAmount
         WHERE user_id = $user_id
     ");
 
@@ -104,16 +135,20 @@ try {
         throw new Exception("Wallet update failed: " . $conn->error);
     }
 
-    // Insert demand
-    $insertDemand = $conn->query("
-        INSERT INTO demand_listings
-        (user_id, date, time_block, units_required, remaining_units, max_price)
-        VALUES
-        ($user_id, '$date', '$time_block', $units, $units, $price)
-    ");
+    // Insert demands for each time block
+    $insertedCount = 0;
+    foreach ($time_blocks as $time_block) {
+        $insertDemand = $conn->query("
+            INSERT INTO demand_listings
+            (user_id, date, time_block, units_required, remaining_units, max_price)
+            VALUES
+            ($user_id, '$date', '$time_block', $units, $units, $price)
+        ");
 
-    if (!$insertDemand) {
-        throw new Exception("Demand insert failed: " . $conn->error);
+        if (!$insertDemand) {
+            throw new Exception("Demand insert failed for $time_block: " . $conn->error);
+        }
+        $insertedCount++;
     }
 
     // Wallet transaction log
@@ -121,7 +156,7 @@ try {
         INSERT INTO wallet_transactions
         (user_id, type, amount, description)
         VALUES
-        ($user_id, 'block', $total, 'Amount blocked for energy demand')
+        ($user_id, 'block', $totalAmount, 'Amount blocked for $insertedCount energy demands')
     ");
 
     if (!$log) {
@@ -132,7 +167,7 @@ try {
 
     echo json_encode([
         "status" => "success",
-        "message" => "Demand added successfully"
+        "message" => "$insertedCount demands added successfully from $start_time to $end_time"
     ]);
 
 } catch (Exception $e) {

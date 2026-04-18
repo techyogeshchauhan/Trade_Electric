@@ -86,7 +86,7 @@ body { background: #f4f6f9; }
 
 .table th {
     background: #1e293b;
-    color: white;
+    color: #ffffff;
     text-align: center;
     font-size: 13px;
     padding: 12px 8px;

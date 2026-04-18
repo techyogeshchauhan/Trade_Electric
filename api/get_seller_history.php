@@ -13,7 +13,7 @@ $query = "
     FROM energy_listings 
     WHERE user_id = $user_id 
     AND remaining_units = 0
-    ORDER BY date DESC, time_block ASC
+    ORDER BY id DESC
 ";
 
 $result = $conn->query($query);

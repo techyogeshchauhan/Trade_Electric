@@ -1,10 +1,13 @@
 <?php
+session_start();
 include '../frontend/includes/config.php';
 
-$date = $_GET['date'];
+$date = $conn->real_escape_string($_GET['date'] ?? date('Y-m-d'));
 
-// MAX LIMIT PER SLOT
-$max_limit = 100;
+// Get max limit from settings
+$settingsQuery = $conn->query("SELECT max_units_per_slot FROM settings LIMIT 1");
+$settingsData = $settingsQuery ? $settingsQuery->fetch_assoc() : null;
+$max_limit = $settingsData['max_units_per_slot'] ?? 100;
 
 $slots = [];
 

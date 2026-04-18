@@ -110,7 +110,7 @@ body {
 
 .table thead th {
     background: #1e293b;
-    color: #fff;
+    color: #ffffff;
     font-size: 13px;
     font-weight: 600;
     padding: 13px 12px;

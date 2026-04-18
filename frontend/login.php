@@ -2,7 +2,10 @@
 // Get base URL dynamically
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
 $host = $_SERVER['HTTP_HOST'];
-$base_url = $protocol . "://" . $host . "/apc/New_project/frontend";
+$script_name = $_SERVER['SCRIPT_NAME'];
+$frontend_dir_pos = strpos($script_name, '/frontend');
+$frontend_path = ($frontend_dir_pos !== false) ? substr($script_name, 0, $frontend_dir_pos + 9) : '/frontend';
+$base_url = $protocol . "://" . $host . $frontend_path;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -269,8 +272,13 @@ $base_url = $protocol . "://" . $host . "/apc/New_project/frontend";
 
 <!-- HEADER -->
 <div class="header-bar">
-    <img src="../assets/gescomLogo.png" class="idlogo">
-    <img src="../assets/apcLogo.jpg" class="logo">
+    <?php
+    // Get logo paths with proper fallback
+    $logo_left = defined('LOGO_LEFT') ? LOGO_LEFT : '../assets/gescomLogo.png';
+    $logo_right = defined('LOGO_RIGHT') ? LOGO_RIGHT : '../assets/apcLogo.jpg';
+    ?>
+    <img src="<?= $logo_left ?>" class="idlogo" alt="Logo">
+    <img src="<?= $logo_right ?>" class="logo" alt="Logo">
 </div>
 
 <!-- LOGIN -->
@@ -360,7 +368,7 @@ $("#loginForm").submit(function (e) {
     $('#errorBox').removeClass('show');
 
     $.ajax({
-        url: "/apc/New_project/api/login_api.php",
+        url: "../api/login_api.php",
         method: "POST",
         data: $(this).serialize(),
         dataType: "json", // Automatically parse JSON

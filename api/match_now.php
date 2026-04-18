@@ -115,9 +115,9 @@ if (!$wallet || $wallet['balance'] < $total) {
  $conn->query("UPDATE energy_listings SET remaining_units = remaining_units - $trade_units WHERE id = {$listing['id']}");
  $conn->query("UPDATE demand_listings SET remaining_units = remaining_units - $trade_units WHERE id = $demand_id");
 
-// Clean up
- $conn->query("DELETE FROM demand_listings WHERE id = $demand_id AND remaining_units <= 0");
- $conn->query("UPDATE energy_listings SET status = 'sold' WHERE id = {$listing['id']} AND remaining_units <= 0");
+// Clean up - Delete fully consumed listings
+$conn->query("DELETE FROM demand_listings WHERE id = $demand_id AND remaining_units <= 0");
+$conn->query("DELETE FROM energy_listings WHERE id = {$listing['id']} AND remaining_units <= 0");
 
 header('Content-Type: application/json');
 echo json_encode([

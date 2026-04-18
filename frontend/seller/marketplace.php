@@ -85,7 +85,7 @@ $user_name = $_SESSION['name'] ?? 'User';
         
         .table th {
             background: #1e293b;
-            color: white;
+            color: #ffffff;
             text-align: center;
             padding: 10px 8px !important;
             font-size: 12px;
@@ -424,7 +424,7 @@ $user_name = $_SESSION['name'] ?? 'User';
 // Load All Sections
 function loadMarketplace() {
     // Available Energy Listings
-    $.get("/apc/New_project/api/get_all_energy_listings.php", function(res) {
+    $.get("../../api/get_all_energy_listings.php", function(res) {
         $("#listingTable").html(res);
     }).fail(function(xhr, status, error) {
         console.error("Energy Listings Error:", error);
@@ -432,7 +432,7 @@ function loadMarketplace() {
     });
 
     // Buyer Demands
-    $.get("/apc/New_project/api/get_all_demands.php", function(res) {
+    $.get("../../api/get_all_demands.php", function(res) {
         $("#demandTable").html(res);
     }).fail(function(xhr, status, error) {
         console.error("Demands Error:", error);
@@ -440,7 +440,7 @@ function loadMarketplace() {
     });
 
     // Live Matches
-    $.get("/apc/New_project/api/get_market_matches.php", function(res) {
+    $.get("../../api/get_market_matches.php", function(res) {
         $("#matchTable").html(res);
     }).fail(function(xhr, status, error) {
         console.error("Matches Error:", error);

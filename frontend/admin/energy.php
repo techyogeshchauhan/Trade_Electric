@@ -22,8 +22,8 @@ if (!empty($seller_filter)) $query .= " AND el.user_id = '$seller_filter'";
  $totalCount = $result->num_rows;
 
  $countAll = $conn->query("SELECT COUNT(*) as c FROM energy_listings")->fetch_assoc()['c'];
- $countAvail = $conn->query("SELECT COUNT(*) as c FROM energy_listings WHERE status='available'")->fetch_assoc()['c'];
- $countSold = $conn->query("SELECT COUNT(*) as c FROM energy_listings WHERE status='sold'")->fetch_assoc()['c'];
+ $countAvail = $conn->query("SELECT COUNT(*) as c FROM energy_listings WHERE remaining_units > 0")->fetch_assoc()['c'];
+ $countSold = $conn->query("SELECT COUNT(*) as c FROM energy_listings WHERE remaining_units = 0")->fetch_assoc()['c'];
  $totalKwh = $conn->query("SELECT COALESCE(SUM(units_available),0) as c FROM energy_listings")->fetch_assoc()['c'];
 
  $sellers = $conn->query("SELECT DISTINCT u.id, u.name FROM energy_listings el JOIN users u ON u.id = el.user_id ORDER BY u.name");
@@ -106,7 +106,7 @@ body {
 
 .table thead th {
     background: #1e293b;
-    color: #fff;
+    color: #ffffff;
     font-size: 14px;
     font-weight: 600;
     padding: 14px 14px;
@@ -228,7 +228,7 @@ body {
                     $clr = $pct > 50 ? '#10b981' : ($pct > 0 ? '#f59e0b' : '#ef4444');
                 ?>
                     <tr>
-                        <td><strong>#<?= $row['id'] ?></strong></td>
+                        <td><strong>ENG-<?= str_pad($row['id'], 6, '0', STR_PAD_LEFT) ?></strong></td>
                         <td>
                             <div class="seller-cell">
                                 <div class="seller-av"><?= strtoupper(substr($row['seller_name'],0,1)) ?></div>

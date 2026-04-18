@@ -6,8 +6,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'buyer') {
 }
 
 include '../includes/config.php';
-
 $user_id = $_SESSION['user_id'];
+
+// Fetch trading hours from settings
+$settingsRow = $conn->query("SELECT trading_start_time, trading_end_time FROM settings LIMIT 1")->fetch_assoc();
+$trading_start_hi = substr($settingsRow['trading_start_time'] ?? '10:00:00', 0, 5);
+$trading_end_hi   = substr($settingsRow['trading_end_time']   ?? '17:00:00', 0, 5);
 
 $userQuery = $conn->query("SELECT name FROM users WHERE id = $user_id");
 $userData = $userQuery->fetch_assoc();
@@ -23,7 +27,15 @@ $buyUnits     = $conn->query("SELECT COALESCE(SUM(units), 0) as total FROM trade
 $spent        = $conn->query("SELECT COALESCE(SUM(total_amount), 0) as total FROM trades WHERE buyer_id = $user_id")->fetch_assoc()['total'];
 
 $walletData   = $conn->query("SELECT balance FROM wallet WHERE user_id = $user_id")->fetch_assoc();
-$walletBalance = $walletData['balance'] ?? 5000;
+
+// Get default balance from settings if wallet doesn't exist
+if (!$walletData) {
+    $settingsBalance = $conn->query("SELECT default_wallet_balance FROM settings LIMIT 1");
+    $balanceData = $settingsBalance ? $settingsBalance->fetch_assoc() : null;
+    $walletBalance = $balanceData['default_wallet_balance'] ?? 0;
+} else {
+    $walletBalance = $walletData['balance'];
+}
 
 $trades = $conn->query("SELECT * FROM trades WHERE buyer_id = $user_id ORDER BY id DESC LIMIT 5");
 ?>
@@ -37,50 +49,95 @@ $trades = $conn->query("SELECT * FROM trades WHERE buyer_id = $user_id ORDER BY 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
 <style>
-body { background: #f8fafc; }
+body { 
+    background: #f8fafc; 
+}
+
 .main-content {
     margin-top: 80px;
     margin-left: 260px;
     padding: 25px;
     max-width: 1400px;
 }
+
 .stat-card {
     border-radius: 12px;
     padding: 20px;
     color: white;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
 }
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
 .card { 
     border-radius: 12px; 
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     border: none;
+    overflow: hidden;
 }
+
+.card-header {
+    background: #fff;
+    border-bottom: 2px solid #f1f5f9;
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 16px;
+    color: #1e293b;
+}
+
 .table { 
     margin: 0;
-    font-size: 13px;
+    font-size: 14px;
+    border-collapse: collapse;
 }
-.table th { 
-    background: #1e2937;
-    color: white; 
+
+.table thead th { 
+    background: #2d3748;
+    color: #ffffff; 
     text-align: center;
-    padding: 10px 8px;
-    font-size: 12px;
+    padding: 14px 12px;
+    font-size: 14px;
     font-weight: 600;
-    border: 1px solid #374151;
+    border: none;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
 }
-.table td {
+
+.table tbody td {
     text-align: center;
     vertical-align: middle;
-    padding: 8px;
-    font-size: 13px;
-    border: 1px solid #e5e7eb;
+    padding: 14px 12px;
+    font-size: 14px;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #2d3748;
 }
-.table tbody tr:hover {
-    background-color: #f3f4f6;
+
+.table tbody tr:hover td {
+    background-color: #f7fafc;
 }
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-responsive {
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
 @media (max-width: 992px) {
-    .main-content { margin-left: 0; }
+    .main-content { 
+        margin-left: 0;
+        padding: 15px;
+    }
 }
 </style>
 </head>
@@ -93,6 +150,13 @@ body { background: #f8fafc; }
     <h2 class="text-center mb-4">
         Welcome, <span class="text-primary"><?= htmlspecialchars($userName) ?></span>
     </h2>
+
+    <!-- Refund Button -->
+    <div class="text-end mb-3">
+        <button class="btn btn-warning" onclick="requestRefund()">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Refund Unused Energy
+        </button>
+    </div>
 
     <!-- Stats -->
     <div class="row g-3 mb-4">
@@ -126,21 +190,56 @@ body { background: #f8fafc; }
         <!-- Add Demand -->
         <div class="col-md-5">
             <div class="card p-3">
-                <h5>Add Demand</h5>
+                <h5>Add Future Demand</h5>
                 <form id="demandForm">
-                    <input type="date" name="date" value="<?= date('Y-m-d') ?>" class="form-control mb-2" required>
-                    <select name="time_block" class="form-control mb-2" required>
-                        <?php
-                        for ($time = strtotime("00:00"); $time <= strtotime("23:45"); $time += 900) {
-                            $from = date("H:i", $time);
-                            $to = date("H:i", $time + 900);
-                            echo "<option value='$from-$to'>$from - $to</option>";
-                        }
-                        ?>
-                    </select>
-                    <input type="number" name="units" placeholder="Units (kWh)" class="form-control mb-2" required>
-                    <input type="number" step="0.01" name="price" placeholder="Max Price (₹)" class="form-control mb-2" required>
-                    <button class="btn btn-primary w-100">Submit Demand</button>
+                    <div class="mb-2">
+                        <label>Date</label>
+                        <input type="date" name="date" value="<?= date('Y-m-d') ?>" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label>Time Range</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <select name="start_time" id="startTime" class="form-control" required>
+                                    <?php
+                                    // Dynamic from settings
+                                    for ($time = strtotime($trading_start_hi); $time <= strtotime($trading_end_hi); $time += 900) {
+                                        $timeStr = date("H:i", $time);
+                                        $selected = ($timeStr == $trading_start_hi) ? "selected" : "";
+                                        echo "<option value='$timeStr' $selected>$timeStr</option>";
+                                    }
+                                    ?>
+                                </select>
+                                <small class="text-muted">From</small>
+                            </div>
+                            <div class="col-6">
+                                <select name="end_time" id="endTime" class="form-control" required>
+                                    <?php
+                                    // Dynamic from settings
+                                    for ($time = strtotime($trading_start_hi); $time <= strtotime($trading_end_hi); $time += 900) {
+                                        $timeStr = date("H:i", $time);
+                                        $selected = ($timeStr == $trading_end_hi) ? "selected" : "";
+                                        echo "<option value='$timeStr' $selected>$timeStr</option>";
+                                    }
+                                    ?>
+                                </select>
+                                <small class="text-muted">To</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label>Units per 15-min block (kWh)</label>
+                        <input type="number" name="units" placeholder="e.g., 10" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label>Max Price (₹/kWh)</label>
+                        <input type="number" step="0.01" name="price" placeholder="e.g., 5.5" class="form-control" required>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100">Submit Bulk Demand</button>
                 </form>
             </div>
         </div>
@@ -250,7 +349,17 @@ body { background: #f8fafc; }
 $("#demandForm").submit(function(e){
     e.preventDefault();
 
-    $.post("../../api/add_demand.php", $(this).serialize(), function(res){
+    const formData = $(this).serialize();
+    const startTime = $("#startTime").val();
+    const endTime = $("#endTime").val();
+    
+    // Validate time range
+    if (startTime >= endTime) {
+        alert("❌ End time must be after start time");
+        return;
+    }
+
+    $.post("../../api/add_demand_bulk.php", formData, function(res){
 
         let data = typeof res === "string" ? JSON.parse(res) : res;
 
@@ -345,6 +454,30 @@ setInterval(function(){
 
 loadDemands();
 loadMatches();
+
+// Refund function
+function requestRefund() {
+    if (!confirm("Request refund for all unused energy from expired demands?\n\nThis will return blocked funds to your wallet.")) {
+        return;
+    }
+    
+    $.post("../../api/refund_unused_energy.php", {}, function(res) {
+        let data = typeof res === "string" ? JSON.parse(res) : res;
+        
+        if (data.status === "success") {
+            alert("✅ " + data.message + "\n\nTotal Refund: ₹" + data.total_refund.toFixed(2) + "\nDemands Refunded: " + data.count);
+            loadDemands();
+            // Reload page to update wallet balance
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+        } else {
+            alert("❌ " + data.message);
+        }
+    }).fail(function(xhr) {
+        alert("Error: " + xhr.responseText);
+    });
+}
 </script>
 
 </body>

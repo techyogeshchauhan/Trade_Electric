@@ -267,7 +267,7 @@ body { background: #f4f6f9; }
                 <h5 class="mb-3"><i class="fas fa-user-circle me-2"></i>Account Information</h5>
                 <div class="info-row">
                     <span class="info-label">User ID</span>
-                    <span class="info-value">#<?= $user['id'] ?></span>
+                    <span class="info-value">USR-<?= str_pad($user['id'], 6, '0', STR_PAD_LEFT) ?></span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Name</span>

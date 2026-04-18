@@ -101,24 +101,33 @@ try {
         $stmt->bind_param("did", $contract['units'], $contract['demand_id'], $contract['units']);
         $stmt->execute();
         
-        // Token Transfer: Seller to Buyer
+        // Token Transfer: Seller to Buyer (ONLY WHEN TRADE COMPLETES)
         $stmt = $conn->prepare("
             INSERT INTO token_ledger (
-                user_id, token_type, token_units, trade_id, tx_hash, description
+                user_id, from_user_id, to_user_id, token_type, token_units, trade_id, 
+                date, time_block, tx_hash, remarks
             ) VALUES 
-            (?, 'transfer_out', ?, ?, ?, 'Token sold to buyer'),
-            (?, 'transfer_in', ?, ?, ?, 'Token purchased from seller')
+            (?, ?, ?, 'transfer_out', ?, ?, ?, ?, ?, 'Token sold to buyer - Trade completed'),
+            (?, ?, ?, 'transfer_in', ?, ?, ?, ?, ?, 'Token purchased from seller - Trade completed')
         ");
         
         $stmt->bind_param(
-            "idisidis",  // FIXED: 8 chars for 8 vars (i,d,i,s,i,d,i,s)
+            "iiiidissiiiidiss",  // 16 chars for 16 vars
             $contract['seller_id'],      // i - seller_id (row 1)
+            $contract['seller_id'],      // i - from_user_id (row 1)
+            $contract['buyer_id'],       // i - to_user_id (row 1)
             $contract['units'],          // d - token_units (row 1)
             $trade_id,                   // i - trade_id (row 1)
+            $contract['date'],           // s - date (row 1)
+            $contract['time_block'],     // s - time_block (row 1)
             $tx_hash,                    // s - tx_hash (row 1)
             $contract['buyer_id'],       // i - buyer_id (row 2)
+            $contract['seller_id'],      // i - from_user_id (row 2)
+            $contract['buyer_id'],       // i - to_user_id (row 2)
             $contract['units'],          // d - token_units (row 2)
             $trade_id,                   // i - trade_id (row 2)
+            $contract['date'],           // s - date (row 2)
+            $contract['time_block'],     // s - time_block (row 2)
             $tx_hash                     // s - tx_hash (row 2)
         );
         $stmt->execute();

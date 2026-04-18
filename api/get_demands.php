@@ -13,7 +13,7 @@ $result = $conn->query("
     SELECT *
     FROM demand_listings
     WHERE user_id = $user_id
-    ORDER BY date DESC, time_block ASC
+    ORDER BY id DESC
 ");
 
 if (!$result) {

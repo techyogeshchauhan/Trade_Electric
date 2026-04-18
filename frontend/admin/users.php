@@ -29,7 +29,31 @@ if (!empty($search)) {
     $filterSQL .= "(name LIKE '%$search%' OR email LIKE '%$search%')";
 }
 
- $result = $conn->query("SELECT * FROM users $filterSQL ORDER BY id DESC");
+ $result = $conn->query("
+    SELECT 
+        u.*,
+        p.address,
+        p.consumer_account,
+        p.telephone,
+        p.renewable_source,
+        p.prosumer_category,
+        p.sanctioned_load,
+        p.capacity,
+        p.tod_billing,
+        p.meter_purchase,
+        p.installation_date,
+        p.status as application_status
+    FROM users u
+    LEFT JOIN p2p_applications p ON u.id = p.user_id
+    $filterSQL 
+    ORDER BY 
+        CASE 
+            WHEN u.role = 'buyer' THEN 1
+            WHEN u.role = 'seller' THEN 2
+            ELSE 3
+        END,
+        u.id DESC
+");
  $totalCount = $result->num_rows;
 
  $countAll = $conn->query("SELECT COUNT(*) as c FROM users")->fetch_assoc()['c'];
@@ -160,7 +184,7 @@ body {
 
 .table thead th {
     background: #1e293b;
-    color: #fff;
+    color: #ffffff;
     font-size: 14px;
     font-weight: 600;
     padding: 14px 16px;
@@ -267,6 +291,10 @@ body {
                         <th>ID</th>
                         <th style="text-align:left">User</th>
                         <th>Email</th>
+                        <th>Phone</th>
+                        <th>Consumer Account</th>
+                        <th>Address</th>
+                        <th>Category</th>
                         <th>Role</th>
                         <th>Status</th>
                         <th>Joined</th>
@@ -276,10 +304,10 @@ body {
                 <?php if($totalCount > 0): ?>
                 <?php while($row = $result->fetch_assoc()):
                     $role = strtolower($row['role']);
-                    $status = strtolower($row['status'] ?? 'approved');
+                    $status = strtolower($row['application_status'] ?? $row['status'] ?? 'approved');
                 ?>
                     <tr>
-                        <td><strong>#<?= $row['id'] ?></strong></td>
+                        <td><strong>USR-<?= str_pad($row['id'], 6, '0', STR_PAD_LEFT) ?></strong></td>
                         <td>
                             <div class="user-cell">
                                 <div class="avatar av-<?= $role ?>"><?= strtoupper(substr($row['name'],0,1)) ?></div>
@@ -290,6 +318,10 @@ body {
                             </div>
                         </td>
                         <td style="color:#6b7280;"><?= $row['email'] ?? '—' ?></td>
+                        <td style="color:#6b7280;"><?= $row['telephone'] ?? '—' ?></td>
+                        <td style="color:#6b7280; font-weight:600;"><?= !empty($row['consumer_account']) ? $row['consumer_account'] : 'ID-' . $row['id'] ?></td>
+                        <td style="color:#6b7280; font-size:13px; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="<?= htmlspecialchars($row['address'] ?? '') ?>"><?= $row['address'] ?? '—' ?></td>
+                        <td style="color:#6b7280;"><?= $row['prosumer_category'] ?? '—' ?></td>
                         <td>
                             <?php if($role==='seller'): ?>
                                 <span class="badge-role br-seller"><i class="bi bi-lightning-charge me-1"></i>Seller</span>
@@ -310,7 +342,7 @@ body {
                     </tr>
                 <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="6"><div class="empty-msg">No users found</div></td></tr>
+                    <tr><td colspan="10"><div class="empty-msg">No users found</div></td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>

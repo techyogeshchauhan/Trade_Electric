@@ -82,8 +82,8 @@ body {
 }
 
 .table th {
-    background: #4facfe;
-    color: white;
+    background: #1e293b;
+    color: #ffffff;
     text-align: center;
 }
 

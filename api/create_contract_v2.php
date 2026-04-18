@@ -45,6 +45,22 @@ try {
     $date = $_POST['date'] ?? null;
     $time_block = $_POST['time_block'] ?? null;
     
+    // Validate time block format (from-to)
+    if ($time_block && strpos($time_block, '-') !== false) {
+        list($from_time, $to_time) = explode('-', $time_block);
+        $from_time = trim($from_time);
+        $to_time = trim($to_time);
+        
+        // Convert to comparable format (remove colons)
+        $from_numeric = (int)str_replace(':', '', $from_time);
+        $to_numeric = (int)str_replace(':', '', $to_time);
+        
+        // Validate: from time should be less than to time
+        if ($from_numeric >= $to_numeric) {
+            throw new Exception('Invalid time block: Start time must be before end time');
+        }
+    }
+    
     // If demand_id is 0 or null, try to find or create matching demand
     if (!$demand_id || $demand_id == 0) {
         $find_demand = $conn->query("
@@ -83,16 +99,18 @@ try {
     $total_amount = floatval($units) * floatval($price_per_unit);
     $platform_fee = floatval($units) * 0.25;
     $utility_fee = floatval($units) * 0.02;
+    $transaction_charge = floatval($units) * 0.14; // KERC compliance
     
     // Generate unique contract ID
     $contract_id = 'CONTRACT-' . date('Ymd-His') . '-' . rand(1000, 9999);
     
-    // Prepare SQL
+    // Prepare SQL with new fields
     $sql = "INSERT INTO contracts (
         contract_id, buyer_id, seller_id, listing_id, demand_id, 
         date, time_block, units, price_per_unit, total_amount, 
-        platform_fee, utility_fee, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
+        platform_fee, utility_fee, transaction_charge, 
+        status, trade_status, energy_filled, tokens_generated, wallet_credited
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'to_be_traded', 0, 0, 0)";
     
     $stmt = $conn->prepare($sql);
     
@@ -100,11 +118,9 @@ try {
         throw new Exception('Failed to prepare statement: ' . $conn->error);
     }
     
-    // Bind parameters
-    // Type string: s(string) i(integer) d(double)
-    // 1=s, 2-5=i, 6-7=s, 8-12=d = siiiissddddd (12 chars for 12 vars)
+    // Bind parameters (13 values)
     $bind_result = $stmt->bind_param(
-        "siiiissddddd",  // FIXED: 12 characters
+        "siiiissdddddd",  // 13 characters for 13 values
         $contract_id,
         $buyer_id,
         $seller_id,
@@ -116,7 +132,8 @@ try {
         $price_per_unit,
         $total_amount,
         $platform_fee,
-        $utility_fee
+        $utility_fee,
+        $transaction_charge
     );
     
     if (!$bind_result) {
@@ -145,7 +162,7 @@ try {
         'insert_id' => $insert_id
     ]);
     
-} catch (Exception $e) {
+} catch (Throwable $e) {
     // Clear any buffered output
     ob_end_clean();
     
