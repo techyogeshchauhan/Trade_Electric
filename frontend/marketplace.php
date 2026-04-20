@@ -1,12 +1,12 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header("Location: seller/login.php");
+    header("Location: login.php");
     exit();
 }
 
 include 'includes/config.php';
-$role = $_SESSION['role'];
+$role = strtolower($_SESSION['role'] ?? '');
 ?>
 
 <!DOCTYPE html>
@@ -15,11 +15,8 @@ $role = $_SESSION['role'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Energy Trading Marketplace</title>
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    
-
     <style>
         body {
             background: #e8eef3;
@@ -269,7 +266,6 @@ $role = $_SESSION['role'];
                 font-size: 11px;
                 padding: 10px 4px !important;
             }
-        }
     </style>
 </head>
 <body>

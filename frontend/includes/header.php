@@ -3,29 +3,31 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-$role = $_SESSION['role'] ?? '';
+$role = strtolower($_SESSION['role'] ?? '');
 $user_name = $_SESSION['name'] ?? 'User';
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// Get base URL dynamically
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+// Get base URL - points to the /frontend directory always
+// Works for: /p2p/frontend/, /frontend/, any server path
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];
 $script_name = $_SERVER['SCRIPT_NAME'];
-$frontend_dir_pos = strpos($script_name, '/frontend');
-$frontend_path = ($frontend_dir_pos !== false) ? substr($script_name, 0, $frontend_dir_pos + 9) : '/frontend';
-$base_url = $protocol . "://" . $host . $frontend_path;
+
+// Find '/frontend' in the path and use everything up to and including it
+$frontend_pos = strrpos($script_name, '/frontend');
+if ($frontend_pos !== false) {
+    $frontend_path = substr($script_name, 0, $frontend_pos + 9); // +9 = length of '/frontend'
+} else {
+    // Fallback: go up directories until we find frontend root
+    $dir = dirname($script_name);
+    $frontend_path = rtrim($dir, '/seller,/buyer,/admin,/dashboard') . '';
+    // Simple fallback: assume script is inside frontend subtree
+    $frontend_path = preg_replace('#/(seller|buyer|admin|dashboard)(/.*)?$#', '', $dir);
+    if (empty($frontend_path)) $frontend_path = '/frontend';
+}
+
+$base_url = $protocol . '://' . $host . $frontend_path;
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>P2P Energy Trading</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
 <style>
 
@@ -342,11 +344,10 @@ body {
         font-size: 12px;
     }
 }
-
 </style>
-</head>
 
-<body>
+<!-- Bootstrap JS (Required for Dropdown) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- HEADER -->
 <div class="top-header">

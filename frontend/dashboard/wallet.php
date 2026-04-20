@@ -81,10 +81,11 @@ body { background:#f4f6f9; }
 .badge-burn { background: #dc3545; }
 </style>
 
-<?php include '../includes/header.php'; ?>
 </head>
 
 <body>
+
+<?php include '../includes/header.php'; ?>
 
 <div class="main-content">
 <div class="container mt-5">

@@ -407,14 +407,20 @@ function validateDates() {
     $user_data = $user_query->fetch_assoc();
     $user_name = $user_data['name'] ?? 'User';
     
-    // Get GESCOM average from settings or calculate dynamically
-    $gescom_settings = $conn->query("SELECT gescom_avg_consumption, gescom_avg_supply FROM settings LIMIT 1");
-    $gescom_data = $gescom_settings ? $gescom_settings->fetch_assoc() : null;
-    
-    if ($role === 'buyer') {
-        $gescom_avg = $gescom_data['gescom_avg_consumption'] ?? 0;
-    } else {
-        $gescom_avg = $gescom_data['gescom_avg_supply'] ?? 0;
+    // Get GESCOM average from settings safely (columns may not exist on server)
+    $gescom_avg = 0;
+    try {
+        $gescom_settings = @$conn->query("SELECT gescom_avg_consumption, gescom_avg_supply FROM settings LIMIT 1");
+        if ($gescom_settings) {
+            $gescom_data = $gescom_settings->fetch_assoc();
+            if ($role === 'buyer') {
+                $gescom_avg = (float)($gescom_data['gescom_avg_consumption'] ?? 0);
+            } else {
+                $gescom_avg = (float)($gescom_data['gescom_avg_supply'] ?? 0);
+            }
+        }
+    } catch (Exception $e) {
+        $gescom_avg = 0; // Column doesn't exist yet — use 0
     }
 ?>
 
@@ -499,7 +505,7 @@ function validateDates() {
 
     // 2. Price Comparison (Buyer's avg vs Market avg)
     $buyer_avg_query = "
-        SELECT COALESCE(AVG(t.price_per_unit), 0) as buyer_avg
+        SELECT COALESCE(AVG(t.price), 0) as buyer_avg
         FROM trades t
         WHERE buyer_id = $user_id
         AND t.date BETWEEN '$date_from' AND '$date_to'
@@ -508,7 +514,7 @@ function validateDates() {
     $buyer_avg_price = $buyer_avg_result ? $buyer_avg_result->fetch_assoc()['buyer_avg'] : 0;
 
     $market_avg_query = "
-        SELECT COALESCE(AVG(t.price_per_unit), 0) as market_avg
+        SELECT COALESCE(AVG(t.price), 0) as market_avg
         FROM trades t
         WHERE t.date BETWEEN '$date_from' AND '$date_to'
     ";
@@ -711,7 +717,7 @@ function validateDates() {
 
     // 2. Price Comparison (Seller's avg vs Market avg)
     $seller_avg_query = "
-        SELECT COALESCE(AVG(t.price_per_unit), 0) as seller_avg
+        SELECT COALESCE(AVG(t.price), 0) as seller_avg
         FROM trades t
         WHERE seller_id = $user_id
         AND t.date BETWEEN '$date_from' AND '$date_to'
@@ -720,7 +726,7 @@ function validateDates() {
     $seller_avg_price = $seller_avg_result ? $seller_avg_result->fetch_assoc()['seller_avg'] : 0;
 
     $market_avg_query = "
-        SELECT COALESCE(AVG(t.price_per_unit), 0) as market_avg
+        SELECT COALESCE(AVG(t.price), 0) as market_avg
         FROM trades t
         WHERE t.date BETWEEN '$date_from' AND '$date_to'
     ";

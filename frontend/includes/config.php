@@ -17,9 +17,9 @@ ini_set('log_errors', 1);
 //   DB Name     : your database name (e.g. solarsuvi_energy)
 // ============================================================
 $db_host = "localhost";
-$db_user = "root";       // ← CHANGE THIS
-$db_pass = "";    // ← CHANGE THIS
-$db_name = "energy_trading";    // ← CHANGE THIS (must match DB imported on server)
+$db_user = "mansi";       // ← CHANGE THIS
+$db_pass = "GBugiWA40bMG3GUG8Yov";    // ← CHANGE THIS
+$db_name = "p2p";    // ← CHANGE THIS (must match DB imported on server)
 
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
