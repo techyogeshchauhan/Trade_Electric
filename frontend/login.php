@@ -364,7 +364,7 @@
             <div class="footer-text" style="margin-top:12px; font-size:14px;">
                 Don't have an account? 
                 <a href="register.php" style="color:#ffc107;text-decoration:none;font-weight:700;">
-                    <i class="fas fa-user-plus me-1"></i>Register here
+                    <i class="fas fa-user-plus me-1"></i>Register
                 </a>
             </div>
 

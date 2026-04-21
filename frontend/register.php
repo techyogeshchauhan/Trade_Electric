@@ -982,9 +982,8 @@
 
             </form>
             
-            <!-- Login Link (Always Visible at Bottom) -->
             <div class="login-footer">
-                Already have an account? <a href="login.php"><i class="fas fa-sign-in-alt me-1"></i>Login here</a>
+                Already have an account? <a href="login.php"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
             </div>
             
         </div>
