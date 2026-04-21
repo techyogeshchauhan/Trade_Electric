@@ -381,7 +381,7 @@ function validateDates() {
         FROM trades
         WHERE $where
         AND date = '$today'
-        GROUP BY hour
+        GROUP BY HOUR(STR_TO_DATE(SUBSTRING_INDEX(time_block, '-', 1), '%H:%i'))
         ORDER BY hour ASC
     ";
     $hourly_result = $conn->query($hourly_query);
@@ -532,7 +532,10 @@ function validateDates() {
         FROM trades
         WHERE buyer_id = $user_id
         AND date BETWEEN '$date_from' AND '$date_to'
-        GROUP BY period
+        GROUP BY CASE 
+            WHEN HOUR(STR_TO_DATE(SUBSTRING_INDEX(time_block, '-', 1), '%H:%i')) BETWEEN 10 AND 17 THEN 'Peak Hours (10 AM - 5 PM)'
+            ELSE 'Off-Peak Hours'
+        END
     ";
     $peak_result = $conn->query($peak_query);
     $peak_data = [];
@@ -744,7 +747,10 @@ function validateDates() {
         FROM trades
         WHERE seller_id = $user_id
         AND date BETWEEN '$date_from' AND '$date_to'
-        GROUP BY period
+        GROUP BY CASE 
+            WHEN HOUR(STR_TO_DATE(SUBSTRING_INDEX(time_block, '-', 1), '%H:%i')) BETWEEN 10 AND 17 THEN 'Peak Hours (10 AM - 5 PM)'
+            ELSE 'Off-Peak Hours'
+        END
     ";
     $peak_result = $conn->query($peak_query);
     $peak_data = [];
@@ -785,7 +791,10 @@ function validateDates() {
             COUNT(*) as count
         FROM energy_listings
         WHERE user_id = $user_id
-        GROUP BY status
+        GROUP BY CASE 
+            WHEN remaining_units > 0 THEN 'Available'
+            ELSE 'Sold Out'
+        END
     ";
     $listings_status_result = $conn->query($listings_status_query);
     $listings_status = [];

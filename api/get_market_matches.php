@@ -51,6 +51,13 @@ while($b = $buyers->fetch_assoc()){
         $buyer_need = number_format($b['remaining_units'], 0);
         $price_formatted = number_format($s['price'], 1);
 
+        // Partial or Full Match logic
+        if ($units == $b['remaining_units'] && $units == $s['remaining_units']) {
+            $status_badge = "<span class='badge bg-success'><i class='bi bi-check-circle'></i> Fully Matched</span>";
+        } else {
+            $status_badge = "<span class='badge bg-warning text-dark'><i class='bi bi-pie-chart-fill'></i> Partial Match</span>";
+        }
+
         echo "<tr>
             <td>$formatted_date</td>
             <td>$time</td>
@@ -60,7 +67,7 @@ while($b = $buyers->fetch_assoc()){
             <td>{$b['buyer_name']}</td>
             <td><span class='text-primary fw-bold'>$buyer_need kWh</span></td>
             <td>₹$price_formatted</td>
-            <td><span class='badge bg-success'><i class='bi bi-check-circle'></i> Matched</span></td>
+            <td>$status_badge</td>
         </tr>";
         
         $match_count++;

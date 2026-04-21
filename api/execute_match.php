@@ -37,6 +37,7 @@ if ($units_needed <= 0) {
  $listing_query = $conn->query("
     SELECT * FROM energy_listings 
     WHERE price <= $max_price AND remaining_units > 0
+    AND date = '$demand_date' AND REPLACE(time_block, ' ', '') = REPLACE('$demand_time', ' ', '')
     ORDER BY price ASC 
     LIMIT 1
 ");

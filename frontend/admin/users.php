@@ -298,6 +298,7 @@ body {
                         <th>Role</th>
                         <th>Status</th>
                         <th>Joined</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -339,10 +340,17 @@ body {
                             <?php endif; ?>
                         </td>
                         <td style="color:#6b7280;"><?= date('d M Y', strtotime($row['created_at'])) ?></td>
+                        <td>
+                            <button onclick="deleteUser(<?= $row['id'] ?>, '<?= htmlspecialchars(addslashes($row['name'])) ?>')" 
+                                    class="btn btn-sm btn-outline-danger" 
+                                    style="border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </td>
                     </tr>
                 <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="10"><div class="empty-msg">No users found</div></td></tr>
+                    <tr><td colspan="11"><div class="empty-msg">No users found</div></td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>
@@ -350,5 +358,26 @@ body {
     </div>
 
 </div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function deleteUser(userId, userName) {
+    if (!confirm('Are you sure you want to DELETE user "' + userName + '"?\nThis action CANNOT be undone!')) return;
+    $.post('../../api/delete_user.php', { user_id: userId }, function(res) {
+        try {
+            let data = JSON.parse(res);
+            if (data.status === 'success') {
+                alert('✅ User deleted successfully.');
+                location.reload();
+            } else {
+                alert('❌ Error: ' + data.message);
+            }
+        } catch(e) {
+            alert('Server error. Please try again.');
+        }
+    });
+}
+</script>
 </body>
 </html>

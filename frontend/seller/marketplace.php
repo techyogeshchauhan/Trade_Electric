@@ -339,10 +339,11 @@ $user_name = $_SESSION['name'] ?? 'User';
                                     <th>Units</th>
                                     <th>Price</th>
                                     <th>Left</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="listingTable">
-                                <tr><td colspan="6" class="text-center py-2">Loading...</td></tr>
+                                <tr><td colspan="7" class="text-center py-2">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -368,10 +369,11 @@ $user_name = $_SESSION['name'] ?? 'User';
                                     <th>Units</th>
                                     <th>Max ₹</th>
                                     <th>Left</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="demandTable">
-                                <tr><td colspan="6" class="text-center py-2">Loading...</td></tr>
+                                <tr><td colspan="7" class="text-center py-2">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>

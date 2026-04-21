@@ -35,25 +35,58 @@ $recent = $conn->query("
     ORDER BY t.id DESC LIMIT 10
 ");
 
-// Buyers list for modal
-$buyers_list  = $conn->query("SELECT id, name, email FROM users WHERE role='buyer' ORDER BY name ASC");
-// Sellers list for modal
-$sellers_list = $conn->query("SELECT id, name, email FROM users WHERE role='seller' ORDER BY name ASC");
+// ── Marketplace: ALL active energy listings (no date filter) ──
+$mkt_listings = $conn->query("
+    SELECT e.date, e.time_block, e.units_available, e.remaining_units, e.price, u.name as seller_name
+    FROM energy_listings e
+    JOIN users u ON e.user_id = u.id
+    ORDER BY e.price ASC, e.date ASC
+    LIMIT 100
+");
+
+// ── Marketplace: ALL active buyer demands (no date filter) ──
+$mkt_demands = $conn->query("
+    SELECT d.date, d.time_block, d.units_required, d.remaining_units, d.max_price, u.name as buyer_name
+    FROM demand_listings d
+    JOIN users u ON d.user_id = u.id
+    ORDER BY d.max_price DESC, d.date ASC
+    LIMIT 100
+");
+
+// ── Live matches: recent confirmed contracts ──
+$mkt_matches = $conn->query("
+    SELECT c.date, c.time_block, c.units, c.price_per_unit,
+           us.name as seller_name, ub.name as buyer_name,
+           el.units_available, dl.units_required, c.status
+    FROM contracts c
+    LEFT JOIN users us ON c.seller_id = us.id
+    LEFT JOIN users ub ON c.buyer_id = ub.id
+    LEFT JOIN energy_listings el ON c.listing_id = el.id
+    LEFT JOIN demand_listings dl ON c.demand_id = dl.id
+    ORDER BY c.created_at DESC
+    LIMIT 50
+");
+
+// Modal data: all users
+$modal_all_users = $conn->query("SELECT id, name, role FROM users WHERE role != 'admin' ORDER BY role, name");
+
 // Active listings for modal
 $active_listings = $conn->query("
     SELECT e.date, e.time_block, e.units_available, e.remaining_units, e.price, u.name as seller_name
     FROM energy_listings e JOIN users u ON e.user_id = u.id
     WHERE e.remaining_units > 0
-    ORDER BY e.date DESC LIMIT 50
+    ORDER BY e.date DESC LIMIT 100
 ");
+
 // Active demands for modal
 $active_demands = $conn->query("
     SELECT d.date, d.time_block, d.units_required, d.remaining_units, d.max_price, u.name as buyer_name
     FROM demand_listings d JOIN users u ON d.user_id = u.id
     WHERE d.remaining_units > 0
-    ORDER BY d.date DESC LIMIT 50
+    ORDER BY d.date DESC LIMIT 100
 ");
-// Total trades recent
+
+// All trades (for $all_trades compat reference)
 $all_trades = $conn->query("
     SELECT t.date, t.time_block, t.units, t.price, t.total_amount, t.status, u1.name as buyer_name, u2.name as seller_name
     FROM trades t
@@ -93,62 +126,108 @@ body {
     max-width: 1400px;
 }
 
-/* ── Stat Cards ── */
+/* ── Stat Cards — Professional Minimal ── */
 .stat-card {
-    border-radius: 16px;
-    padding: 22px 18px;
-    color: white;
+    border-radius: 12px;
+    padding: 20px;
     text-align: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    transition: 0.25s;
-    position: relative;
-    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: 0.2s;
     cursor: pointer;
     text-decoration: none;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #1f2937;
+    border: 2px solid transparent;
 }
 .stat-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 14px 32px rgba(0,0,0,0.2);
-    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    color: #1f2937;
     text-decoration: none;
 }
-.stat-card::after {
-    content: '↗ Click to view';
-    position: absolute;
-    bottom: 8px;
-    right: 12px;
-    font-size: 10px;
-    opacity: 0.7;
-    letter-spacing: 0.3px;
-}
-.stat-card .stat-icon { font-size: 2rem; margin-bottom: 6px; opacity: 0.9; }
-.stat-card h6 { font-size: 12px; font-weight: 500; opacity: 0.85; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-card h2 { font-weight: 800; margin-bottom: 6px; font-size: 2.2rem; }
-.stat-card small { font-size: 12px; opacity: 0.85; }
-
-/* Card sub-links */
-.stat-card .sub-links { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
-.stat-card .sub-link {
-    background: rgba(255,255,255,0.25);
-    border: 1px solid rgba(255,255,255,0.4);
-    color: white;
-    padding: 3px 10px;
-    border-radius: 20px;
+.stat-card h6 {
     font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.15s;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
 }
-.stat-card .sub-link:hover { background: rgba(255,255,255,0.4); }
+.stat-card h2 {
+    font-weight: 800;
+    margin-bottom: 5px;
+    font-size: 28px;
+    line-height: 1;
+}
+.stat-card small { font-size: 11px; font-weight: 600; opacity: 0.8; }
+.stat-card .stat-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
 
-/* Card Colors */
-.bg-users    { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.bg-listings { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.bg-demands  { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #1e3a5f; }
-.bg-trades   { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #064e3b; }
-.bg-systems  { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #7c2d12; }
-.bg-tokens   { background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%); }
+/* User Card */
+.sc-users {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-color: #93c5fd;
+    color: #1e3a8a;
+}
+.sc-users h6 { color: #1e40af; }
+.sc-users h2 { color: #1e3a8a; }
+.sc-users .stat-icon { color: #2563eb; }
+
+/* Listings */
+.sc-listings {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: #fbd38d;
+    color: #78350f;
+}
+.sc-listings h6 { color: #92400e; }
+.sc-listings h2 { color: #78350f; }
+.sc-listings .stat-icon { color: #d97706; }
+
+/* Demands */
+.sc-demands {
+    background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+    border-color: #d8b4fe;
+    color: #4c1d95;
+}
+.sc-demands h6 { color: #5b21b6; }
+.sc-demands h2 { color: #4c1d95; }
+.sc-demands .stat-icon { color: #7c3aed; }
+
+/* Trades */
+.sc-trades {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-color: #86efac;
+    color: #14532d;
+}
+.sc-trades h6 { color: #166534; }
+.sc-trades h2 { color: #14532d; }
+.sc-trades .stat-icon { color: #16a34a; }
+
+/* Systems */
+.sc-systems {
+    background: linear-gradient(135deg, #fdf2f8, #fbcfe8);
+    border-color: #f9a8d4;
+    color: #831843;
+}
+.sc-systems h6 { color: #9d174d; }
+.sc-systems h2 { color: #831843; }
+.sc-systems .stat-icon { color: #db2777; }
+
+/* Tokens */
+.sc-tokens {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: #fbbf24;
+    color: #78350f;
+}
+.sc-tokens h6 { color: #92400e; }
+.sc-tokens h2 { color: #78350f; }
+.sc-tokens .stat-icon { color: #d97706; }
+
 
 /* ── Cards ── */
 .card {
@@ -221,52 +300,50 @@ body {
     <small class="text-muted"><?= date('d-m-Y h:i A') ?></small>
 </div>
 
-<!-- ═══════ ROW 1: KPI CARDS ═══════ -->
+<!-- ═══════ ROW 1: KPI CARDS (Professional Minimal) ═══════ -->
 <div class="row g-3 mb-4">
 
-    <!-- Total Users (clickable → modal) -->
     <div class="col-md-4 col-lg-2">
-        <a class="stat-card bg-users" href="#" data-bs-toggle="modal" data-bs-target="#modalAllUsers">
+        <div class="stat-card sc-users" onclick="openModal('all')">
             <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
             <h6>Total Users</h6>
             <h2><?= $totalUsers ?></h2>
-            <small>Buyers: <?= $totalBuyers ?> | Sellers: <?= $totalSellers ?></small>
-        </a>
+            <small>
+                <span onclick="event.stopPropagation(); openModal('buyer')" style="cursor: pointer; text-decoration: underline;" class="text-primary">B: <?= $totalBuyers ?></span> | 
+                <span onclick="event.stopPropagation(); openModal('seller')" style="cursor: pointer; text-decoration: underline;" class="text-success">S: <?= $totalSellers ?></span>
+            </small>
+        </div>
     </div>
 
-    <!-- Total Listings -->
     <div class="col-md-4 col-lg-2">
-        <a class="stat-card bg-listings" href="#" data-bs-toggle="modal" data-bs-target="#modalListings">
+        <a class="stat-card sc-listings" href="#" data-bs-toggle="modal" data-bs-target="#modalListings">
             <div class="stat-icon"><i class="bi bi-lightning-charge-fill"></i></div>
             <h6>Energy Listings</h6>
             <h2><?= $totalListings ?></h2>
-            <small>Active energy supply</small>
+            <small>Active supply</small>
         </a>
     </div>
 
-    <!-- Total Demands -->
     <div class="col-md-4 col-lg-2">
-        <a class="stat-card bg-demands" href="#" data-bs-toggle="modal" data-bs-target="#modalDemands">
+        <a class="stat-card sc-demands" href="#" data-bs-toggle="modal" data-bs-target="#modalDemands">
             <div class="stat-icon"><i class="bi bi-cart-fill"></i></div>
             <h6>Buyer Demands</h6>
             <h2><?= $totalDemands ?></h2>
-            <small>Active demand listings</small>
+            <small>Active demands</small>
         </a>
     </div>
 
-    <!-- Total Trades -->
     <div class="col-md-4 col-lg-2">
-        <a class="stat-card bg-trades" href="trades.php">
+        <a class="stat-card sc-trades" href="trades.php">
             <div class="stat-icon"><i class="bi bi-arrow-left-right"></i></div>
             <h6>Total Trades</h6>
             <h2><?= $totalTrades ?></h2>
-            <small>Completed matches</small>
+            <small>Completed</small>
         </a>
     </div>
 
-    <!-- Active Systems -->
     <div class="col-md-4 col-lg-2">
-        <a class="stat-card bg-systems" href="#" data-bs-toggle="modal" data-bs-target="#modalListings">
+        <a class="stat-card sc-systems" href="#" data-bs-toggle="modal" data-bs-target="#modalListings">
             <div class="stat-icon"><i class="bi bi-cpu-fill"></i></div>
             <h6>Active Systems</h6>
             <h2><?= $activeSystems ?></h2>
@@ -274,9 +351,8 @@ body {
         </a>
     </div>
 
-    <!-- Total Tokens -->
     <div class="col-md-4 col-lg-2">
-        <a class="stat-card bg-tokens" href="token_report.php">
+        <a class="stat-card sc-tokens" href="token_report.php">
             <div class="stat-icon"><i class="fas fa-coins"></i></div>
             <h6>Total Tokens</h6>
             <h2><?= number_format($totalTokens, 0) ?></h2>
@@ -286,45 +362,39 @@ body {
 
 </div>
 
-<!-- ═══════ MARKETPLACE SECTION ═══════ -->
-<div class="row g-3 mb-4">
-    <!-- Available Energy -->
-    <div class="col-lg-6">
-        <div class="mkt-card">
-            <div class="mkt-header yellow"><i class="bi bi-lightning-charge-fill"></i> Available Energy &nbsp;<small style="margin-left:auto;background:rgba(255,255,255,0.4);padding:2px 10px;border-radius:12px;font-size:12px;">Cheapest first</small></div>
-            <div class="table-responsive" style="max-height:280px;overflow-y:auto;">
-                <table class="table mb-0">
-                    <thead><tr><th>Date</th><th>Time</th><th>Seller</th><th>Units</th><th>Price</th><th>Left</th></tr></thead>
-                    <tbody id="adminListingTable"><tr><td colspan="6" class="text-center py-3 text-muted">Loading...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
+<!-- ═══════ RECENT CONTRACTS / MATCHES ═══════ -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-fire me-2 text-danger"></i>Recent Contracts / Matches</h5>
+        <a href="trades.php" class="btn btn-sm btn-outline-secondary">View All Trades →</a>
     </div>
-
-    <!-- Buyer Demands -->
-    <div class="col-lg-6">
-        <div class="mkt-card">
-            <div class="mkt-header blue"><i class="bi bi-person-fill"></i> Buyer Demands &nbsp;<small style="margin-left:auto;background:rgba(255,255,255,0.25);padding:2px 10px;border-radius:12px;font-size:12px;">Highest price first</small></div>
-            <div class="table-responsive" style="max-height:280px;overflow-y:auto;">
-                <table class="table mb-0">
-                    <thead><tr><th>Date</th><th>Time</th><th>Buyer</th><th>Units</th><th>Price</th><th>Left</th></tr></thead>
-                    <tbody id="adminDemandTable"><tr><td colspan="6" class="text-center py-3 text-muted">Loading...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Live Matches -->
-<div class="mkt-card mb-4">
-    <div class="mkt-header dark"><i class="bi bi-fire"></i> Live Best Matches &nbsp;<small style="opacity:0.6;font-weight:400;font-size:12px;">Updated every 3s</small></div>
-    <div class="table-responsive" style="max-height:280px;overflow-y:auto;">
+    <div class="card-body p-0">
+    <div class="table-responsive" style="max-height:320px;overflow-y:auto;">
         <table class="table mb-0">
-            <thead><tr><th>Date</th><th>Time</th><th>Units</th><th>Seller</th><th>Seller Units</th><th>Buyer</th><th>Buyer Units</th><th>Price</th><th>Status</th></tr></thead>
-            <tbody id="adminMatchTable"><tr><td colspan="9" class="text-center py-3 text-muted">Loading matches...</td></tr></tbody>
+            <thead><tr><th>Date</th><th>Time</th><th>Units</th><th>Seller</th><th>Buyer</th><th>Price</th><th>Status</th></tr></thead>
+            <tbody>
+            <?php if ($mkt_matches && $mkt_matches->num_rows > 0):
+                while($m = $mkt_matches->fetch_assoc()):
+                    $sBadge = $m['status'] === 'confirmed' ? 'bg-success' : ($m['status'] === 'pending' ? 'bg-warning text-dark' : 'bg-secondary');
+            ?>
+            <tr>
+                <td><?= date('d-m-Y', strtotime($m['date'])) ?></td>
+                <td><?= htmlspecialchars($m['time_block']) ?></td>
+                <td><?= number_format($m['units'], 2) ?> kWh</td>
+                <td><?= htmlspecialchars($m['seller_name'] ?? '-') ?></td>
+                <td><?= htmlspecialchars($m['buyer_name'] ?? '-') ?></td>
+                <td>₹<?= number_format($m['price_per_unit'], 2) ?></td>
+                <td><span class="badge <?= $sBadge ?>"><?= ucfirst($m['status']) ?></span></td>
+            </tr>
+            <?php endwhile; else: ?>
+            <tr><td colspan="7" class="text-center py-3 text-muted">No contract matches yet</td></tr>
+            <?php endif; ?>
+            </tbody>
         </table>
     </div>
+    </div>
 </div>
+
 
 <!-- ═══════ RECENT TRADES TABLE ═══════ -->
 <div class="card mb-4">
@@ -509,24 +579,8 @@ function filterUserTable(role) {
     document.querySelectorAll('.p-3.border-bottom .btn').forEach(btn => btn.classList.remove('btn-primary'));
 }
 
-// Load marketplace data for admin (no date filter)
-function loadAdminMarket() {
-    $.get("../../api/get_admin_marketplace.php?type=listings", function(res) {
-        $("#adminListingTable").html(res);
-    });
-    $.get("../../api/get_admin_marketplace.php?type=demands", function(res) {
-        $("#adminDemandTable").html(res);
-    });
-    $.get("../../api/get_market_matches.php", function(res) {
-        $("#adminMatchTable").html(res);
-    });
-}
 
-$(document).ready(function() {
-    loadAdminMarket();
-});
 
-setInterval(loadAdminMarket, 3000);
 </script>
 
 </body>

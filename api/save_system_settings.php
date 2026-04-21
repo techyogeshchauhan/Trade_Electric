@@ -1,13 +1,15 @@
 <?php
 session_start();
 header('Content-Type: application/json');
+mysqli_report(MYSQLI_REPORT_OFF); // Prevent exceptions from breaking JSON output
 
 include '../frontend/includes/config.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
+// Fix: use strtolower() so 'Admin', 'ADMIN', 'admin' all work
+if (!isset($_SESSION['user_id']) || strtolower(trim($_SESSION['role'] ?? '')) !== 'admin') {
     echo json_encode([
-        "status" => "error",
-        "message" => "Unauthorized access"
+        "status"  => "error",
+        "message" => "Unauthorized access — role: " . ($_SESSION['role'] ?? 'not set')
     ]);
     exit();
 }
@@ -72,13 +74,13 @@ if ($checkSettings && $checkSettings->num_rows > 0) {
 
     if ($update) {
         echo json_encode([
-            "status" => "success",
-            "message" => "System settings updated successfully"
+            "status"  => "success",
+            "message" => "System settings updated successfully! ✅"
         ]);
     } else {
         echo json_encode([
-            "status" => "error",
-            "message" => "Failed to update settings: " . $conn->error
+            "status"  => "error",
+            "message" => "DB Update failed: " . $conn->error
         ]);
     }
 } else {

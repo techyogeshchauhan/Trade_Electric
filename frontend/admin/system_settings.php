@@ -281,21 +281,26 @@ $settings = $conn->query("SELECT * FROM settings LIMIT 1")->fetch_assoc() ?? [];
 <script>
 $("#systemSettingsForm").submit(function(e){
     e.preventDefault();
+    var btn = $(this).find('button[type=submit]');
+    btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-2"></i>Saving...');
 
     $.post("../../api/save_system_settings.php", $(this).serialize(), function(response){
+        btn.prop('disabled', false).html('<i class="bi bi-save me-2"></i>Save All Settings');
         try {
             let res = JSON.parse(response);
             if(res.status === "success"){
                 $("#msg").html('<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>'+res.message+'</div>');
-                setTimeout(function(){
-                    location.reload();
-                }, 1500);
+                setTimeout(function(){ location.reload(); }, 1500);
             } else {
-                $("#msg").html('<div class="alert alert-danger"><i class="bi bi-x-circle me-2"></i>'+res.message+'</div>');
+                $("#msg").html('<div class="alert alert-danger"><i class="bi bi-x-circle me-2"></i><strong>Error:</strong> '+res.message+'</div>');
             }
-        } catch(e) {
-            $("#msg").html('<div class="alert alert-danger">Server error occurred.</div>');
+        } catch(ex) {
+            // Show raw server output to help debug
+            $("#msg").html('<div class="alert alert-danger"><strong>Server response (raw):</strong><pre style="font-size:12px;margin-top:8px;">'+response+'</pre></div>');
         }
+    }).fail(function(xhr){
+        btn.prop('disabled', false).html('<i class="bi bi-save me-2"></i>Save All Settings');
+        $("#msg").html('<div class="alert alert-danger"><strong>HTTP Error '+xhr.status+':</strong> '+xhr.responseText+'</div>');
     });
 });
 </script>

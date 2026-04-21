@@ -89,6 +89,29 @@
             letter-spacing: -0.2px;
         }
 
+        /* Role badge shown in header on all steps */
+        .role-badge-wrap {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .role-badge-wrap.visible { display: flex; }
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            animation: fadeSlideIn 0.3s ease;
+        }
+        .role-badge.buyer  { background: #dbeafe; color: #1e40af; border: 1.5px solid #93c5fd; }
+        .role-badge.seller { background: #fef3c7; color: #92400e; border: 1.5px solid #fcd34d; }
+        .role-step-label { font-size: 13px; color: #64748b; font-weight: 500; }
+
         .header .header-icon {
             width: 56px;
             height: 56px;
@@ -722,7 +745,14 @@
 <div class="main-card">
     <!-- Header -->
     <div class="header">
-        <h4>Application for Registration for P2P Energy Transactions</h4>
+        <div>
+            <h4>Application for Registration for P2P Energy Transactions</h4>
+            <!-- Role badge — shown after role is selected, persists across ALL steps -->
+            <div class="role-badge-wrap" id="roleBadgeWrap">
+                <span class="role-step-label">Registering as:</span>
+                <span class="role-badge" id="roleBadgeDisplay"></span>
+            </div>
+        </div>
         <div class="header-icon">
             <i class="fas fa-bolt"></i>
         </div>
@@ -997,6 +1027,21 @@ let currentStep = 1;
    ══════════════════════════════════════════ */
  $('#roleSelect').on('change', function () {
     const role = $(this).val();
+
+    // ── Update role badge in header ──
+    const badge = $('#roleBadgeDisplay');
+    const wrap  = $('#roleBadgeWrap');
+    if (role === 'buyer') {
+        badge.attr('class', 'role-badge buyer')
+             .html('<i class="fas fa-shopping-cart"></i> Buyer');
+        wrap.addClass('visible');
+    } else if (role === 'seller') {
+        badge.attr('class', 'role-badge seller')
+             .html('<i class="fas fa-solar-panel"></i> Seller');
+        wrap.addClass('visible');
+    } else {
+        wrap.removeClass('visible');
+    }
 
     // Reset everything first
     resetAllOptionalFields();
