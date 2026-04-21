@@ -266,6 +266,7 @@ $role = strtolower($_SESSION['role'] ?? '');
                 font-size: 11px;
                 padding: 10px 4px !important;
             }
+        }
     </style>
 </head>
 <body>
